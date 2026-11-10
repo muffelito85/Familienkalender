@@ -103,6 +103,7 @@ input:disabled{opacity:.4}
       <div><label>Wer? (keine Auswahl = Dani, Caro und Lara)</label><div class="chips" id="fchips" style="margin:4px 0 0"></div></div>
       <div><label for="rep">Wiederholung</label>
         <select id="rep"><option value="none">Keine</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></div>
+      <div><label for="reminder">Erinnerung</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select><small class="empty">Die Benachrichtigung wird erst in der Android-App aktiviert.</small></div>
       <div><label for="note">Ort / Notiz (optional)</label><input id="note" maxlength="200"></div>
       <div class="err" id="err"></div>
       <button class="btn" id="save" type="button">Speichern</button>
@@ -171,7 +172,7 @@ function fromDn(n){var d=new Date(n*86400000);return d.getUTCFullYear()+"-"+Stri
 function mem(id){return MEMBERS.find(function(m){return m.id===id})||{name:"?",color:"#999"};}
 var sel=iso(today);
 function norm(e){
-  var o={id:e.id,title:e.title||"",start:e.start||e.date||iso(today),end:e.end||e.start||e.date||iso(today),allDay:!!e.allDay,st:e.st!==undefined?e.st:(e.time||""),et:e.et||"",ms:e.ms||(e.m?[e.m]:[]),rep:e.rep||"none",note:e.note||""};
+  var o={id:e.id,title:e.title||"",start:e.start||e.date||iso(today),end:e.end||e.start||e.date||iso(today),allDay:!!e.allDay,st:e.st!==undefined?e.st:(e.time||""),et:e.et||"",ms:e.ms||(e.m?[e.m]:[]),rep:e.rep||"none",reminder_minutes:e.reminder_minutes??null,note:e.note||""};
   if(!o.ms.length)o.ms=FAM.slice();
   return o;
 }
@@ -223,6 +224,7 @@ function evRow(e){
   var sm=document.createElement("small");
   var parts=[timeLabel(e),isFam(e.ms)?"Familie":e.ms.map(function(m){return mem(m).name}).join(", ")];
   if(e.rep!=="none")parts.push("↻ "+REP[e.rep]);
+  if(e.reminder_minutes!=null)parts.push("🔔 "+({15:"15 Min.",60:"1 Std.",1440:"1 Tag",10080:"1 Woche"}[e.reminder_minutes]||e.reminder_minutes+" Min.")+" vorher (vorgemerkt)");
   if(e.note)parts.push(e.note);
   sm.textContent=parts.filter(Boolean).join(" · ");
   t.appendChild(b);t.appendChild(document.createElement("br"));t.appendChild(sm);
@@ -294,7 +296,7 @@ function openForm(e){
   $("formTitle").textContent=e?"Termin bearbeiten":"Neuer Termin";
   var v=e||{title:"",start:sel,end:sel,allDay:false,st:"",et:"",ms:[],rep:"none",note:""};
   $("et").value=v.title;$("ad").checked=v.allDay;$("sd").value=v.start;$("ed").value=v.end;
-  $("st").value=v.st;$("etm").value=v.et;$("rep").value=v.rep;$("note").value=v.note;
+  $("st").value=v.st;$("etm").value=v.et;$("rep").value=v.rep;$("reminder").value=v.reminder_minutes==null?"":String(v.reminder_minutes);$("note").value=v.note;
   fm={};(e&&!isFam(e.ms)?e.ms:[]).forEach(function(m){fm[m]=true;});
   $("del").style.display=e?"block":"none";$("err").textContent="";
   syncAD();$("formPanel").style.display="block";$("dayPanel").style.display="none";$("listPanel").style.display="none";
@@ -316,7 +318,7 @@ $("save").onclick=function(){
   if(!ad&&ed===sd&&st&&et&&et<st){$("err").textContent="Die Endzeit liegt vor der Startzeit.";return;}
   var ms=MEMBERS.map(function(m){return m.id}).filter(function(m){return fm[m]});
   if(!ms.length)ms=FAM.slice();
-  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$("rep").value,note:$("note").value.trim()};
+  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$("rep").value,reminder_minutes:$("reminder").value?Number($("reminder").value):null,note:$("note").value.trim()};
   if(store){if(editId)store.update(editId,o);else store.add(o);}
   sel=sd;view=new Date(+sd.slice(0,4),+sd.slice(5,7)-1,1);closeForm();
 };
@@ -330,14 +332,14 @@ $("vl").onclick=function(){mode="list";render();};
 var sb=null, channel=null, poller=null, sessionUser=null;
 var familyId=window.FAMCAL_CONFIG && window.FAMCAL_CONFIG.familyId;
 var config=window.FAMCAL_CONFIG||{};
-var fields=['title','start','end','allDay','st','et','ms','rep','note'];
+var fields=['title','start','end','allDay','st','et','ms','rep','note','reminder_minutes'];
 function record(e){var x={family_id:familyId};fields.forEach(function(k){x[k]=e[k]});return x;}
 function msg(e){return e&&e.message?e.message:String(e||'Unbekannter Fehler');}
 function authMessage(t){$('authMessage').textContent=t;}
 function locked(t){store=null;state.events=[];status=t||'Bitte anmelden';$('authScreen').style.display='flex';$('logoutBtn').style.display='none';render();}
 async function refresh(){
   if(!sessionUser)return;
-  var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
+  var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note,reminder_minutes').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
   if(result.error){status='Synchronisierung fehlgeschlagen: '+msg(result.error);render();return;}
   state.events=result.data||[];status='Synchronisiert';render();
 }
@@ -386,7 +388,7 @@ $('save').onclick=async function(){
   if(ed<sd){$('err').textContent='Das Ende liegt vor dem Beginn.';return;}
   if(!ad&&ed===sd&&st&&et&&et<st){$('err').textContent='Die Endzeit liegt vor der Startzeit.';return;}
   var ms=MEMBERS.map(function(m){return m.id}).filter(function(m){return fm[m]});if(!ms.length)ms=FAM.slice();
-  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$('rep').value,note:$('note').value.trim()};
+  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$('rep').value,reminder_minutes:$('reminder').value?Number($('reminder').value):null,note:$('note').value.trim()};
   if(!store){$('err').textContent='Bitte zuerst anmelden.';return;}
   var ok=editId?await store.update(editId,o):await store.add(o);
   if(ok){sel=sd;view=new Date(+sd.slice(0,4),+sd.slice(5,7)-1,1);closeForm();}
