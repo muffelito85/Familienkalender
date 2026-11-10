@@ -185,8 +185,21 @@ function occ(e,k){
 }
 function shown(e){return e.ms.some(function(m){return filter[m]!==false});}
 function evs(k){
-  return state.events.map(norm).filter(function(e){return shown(e)&&occ(e,k)}).sort(function(a,b){
-    if(a.allDay!==b.allDay)return a.allDay?-1:1;return (a.st||"").localeCompare(b.st||"");});
+  var events=state.events.map(norm).filter(function(e){return shown(e)&&occ(e,k)});
+  // Anniversaries are stored separately, and recur on the same month/day each year.
+  var anniversaries=(typeof familyData!=="undefined"?familyData.anniversaries:[])||[];
+  anniversaries.forEach(function(a){
+    if(!a.event_date||a.event_date.slice(5)!==k.slice(5))return;
+    // Do not show an anniversary before its original date.
+    if(k<a.event_date)return;
+    events.push({id:a.id,title:(a.kind==='birthday'?'🎂 ':'💍 ')+a.title,
+      start:k,end:k,allDay:true,st:'',et:'',ms:FAM.slice(),rep:'yearly',
+      note:a.note||'',anniversary:true,anniversaryKind:a.kind});
+  });
+  return events.sort(function(a,b){
+    if(a.allDay!==b.allDay)return a.allDay?-1:1;
+    return (a.st||'').localeCompare(b.st||'');
+  });
 }
 function fmtD(k){var p=k.split("-");return p[2]+"."+p[1]+".";}
 function timeLabel(e){
@@ -209,7 +222,13 @@ function evRow(e){
   sm.textContent=parts.filter(Boolean).join(" · ");
   t.appendChild(b);t.appendChild(document.createElement("br"));t.appendChild(sm);
   r.appendChild(bar);r.appendChild(t);
-  r.onclick=function(){openForm(e);};
+  // Anniversary records are managed under "Mehr", not via the event editor.
+  if(e.anniversary){
+    r.title='Geburtstage und Jahrestage unter Mehr verwalten';
+    r.style.cursor='default';
+  }else{
+    r.onclick=function(){openForm(e);};
+  }
   return r;
 }
 function chipSet(box,onclick,isOn){
@@ -411,6 +430,7 @@ async function familyLoad(){
  var tables=['tasks','shopping_items','anniversaries'];
  var responses=await Promise.all(tables.map(function(t){return sb.from(t).select('*').eq('family_id',familyId).order('created_at',{ascending:false}).limit(1000);}));
  responses.forEach(function(r,i){if(r.error){familyNotice('Laden fehlgeschlagen ('+tables[i]+'): '+msg(r.error));return;}familyData[tables[i]]=r.data||[];familyDraw(tables[i]);});
+ if(familyPage==='calendar')render();
 }
 async function familyMutate(table,action,data,id){
  if(!sb||!sessionUser){familyNotice('Bitte anmelden.');return;}
