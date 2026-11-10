@@ -68,7 +68,12 @@ input:disabled{opacity:.4}
 .familyForm button{flex:0 0 auto}
 #familyMessage{font-size:13px;min-height:20px}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#d9622b"></head>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#d9622b"><style>
+.day{position:relative;overflow:hidden}
+.day.vacation-day::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:4px;border-radius:3px;background:#e0559a;opacity:.65;pointer-events:none}
+.day.holiday-day::before{content:"";position:absolute;top:0;right:0;border-top:11px solid #d9622b;border-left:11px solid transparent;pointer-events:none}
+.day .dots{margin-bottom:5px}
+</style></head>
 <body>
 <div class="wrap">
   <div class="top"><h1>👨‍👩‍👧‍👦 Familienkalender</h1>
@@ -261,7 +266,10 @@ function renderMonth(){
     c.className="day"+(d.getMonth()!==view.getMonth()?" out":"")+(k===iso(today)?" today":"")+(k===sel?" sel":"");
     var sp=document.createElement("span");sp.textContent=d.getDate();c.appendChild(sp);
     var dots=document.createElement("div");dots.className="dots";var n=0;
-    evs(k).forEach(function(ev){ev.ms.forEach(function(m){if(n<6&&filter[m]!==false){n++;var o=document.createElement("i");o.className="dot";o.style.background=mem(m).color;dots.appendChild(o);}});});
+    var dayEvents=evs(k);
+    if(dayEvents.some(function(e){return e.calendarType==='vacation';}))c.classList.add('vacation-day');
+    if(dayEvents.some(function(e){return e.calendarType==='holiday';}))c.classList.add('holiday-day');
+    dayEvents.filter(function(e){return !e.calendarType;}).forEach(function(ev){ev.ms.forEach(function(m){if(n<6&&filter[m]!==false){n++;var o=document.createElement("i");o.className="dot";o.style.background=mem(m).color;dots.appendChild(o);}});});
     c.appendChild(dots);
     (function(k){c.onclick=function(){sel=k;render();};})(k);
     g.appendChild(c);
@@ -514,7 +522,7 @@ function publicHolidays(y){
 var originalHolidayEvs=evs;
 evs=function(k){
  var result=originalHolidayEvs(k),extra=[];
- function add(title,type){extra.push({id:'by-'+type+'-'+k+'-'+title,title:(type==='holiday'?'🇩🇪 ':'🏖️ ')+title,start:k,end:k,allDay:true,st:'',et:'',ms:FAM.slice(),rep:'none',note:'Bayern',calendarReadOnly:true,calendarType:type});}
+ function add(title,type){extra.push({id:'by-'+type+'-'+k+'-'+title,title:(type==='holiday'?'🇩🇪 ':'🏖️ ')+title,start:k,end:k,allDay:true,st:'',et:'',ms:type==='vacation'?['lara']:FAM.slice(),rep:'none',note:type==='vacation'?'Schulferien Bayern · Lara':'Gesetzlicher Feiertag Bayern (nicht automatisch arbeitsfrei)',calendarReadOnly:true,calendarType:type});}
  if(holidayVisibility.holidays)publicHolidays(+k.slice(0,4)).forEach(function(x){if(x[0]===k)add(x[1],'holiday');});
  if(holidayVisibility.vacations)bavarianSchoolBreaks.forEach(function(x){if(k>=x[0]&&k<=x[1])add(x[2],'vacation');});
  return result.concat(extra);
@@ -522,7 +530,7 @@ evs=function(k){
 var originalHolidayEvRow=evRow;
 evRow=function(e){
  var row=originalHolidayEvRow(e);
- if(e.calendarReadOnly){row.onclick=null;row.style.cursor='default';row.setAttribute('aria-label',e.title+' (Information, nicht bearbeitbar)');}
+ if(e.calendarReadOnly){var bar=row.querySelector('.bar2');if(bar)bar.style.background=e.calendarType==='vacation'?'#e0559a':'#d9622b';row.onclick=null;row.style.cursor='default';row.setAttribute('aria-label',e.title+' (Information, nicht bearbeitbar)');}
  return row;
 };
 (function(){
