@@ -114,6 +114,58 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.
 .homeAppearance{margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .homeAppearance label{font-size:13px;color:var(--muted)}.homeAppearance select{width:auto;flex:1;min-width:140px;background:var(--card);font-size:13px}
 @media(max-width:370px){.homeAvatars{gap:6px}.homeAvatar .portrait{width:51px;height:51px}.homeHero{padding:18px 14px}}
+</style><style>
+/* Family Modern V2: shared design system, preserving calendar and Supabase logic */
+:root{--accent:#7544cf;--bg:#f5f5fd;--card:#fff;--line:#e5e5f2;--text:#22223e;--muted:#70758e}
+body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
+.wrap{max-width:740px;padding:16px 15px 112px}
+.top{background:linear-gradient(115deg,#4e438c,#9c59b9);border-radius:20px;padding:16px 18px;margin-bottom:14px;color:white;box-shadow:0 10px 25px #44347c24}
+.top h1{color:white;font-size:21px}
+.top .seg{border:1px solid #ffffff55;background:#ffffff1c}
+.top .seg button{background:transparent;color:white}
+.top .seg button.on{background:white;color:#5833a3;font-weight:800}
+.wrap[data-page="home"] .top{display:none}
+.wrap[data-page="calendar"] .top{display:flex}
+#chips{padding:0 2px;margin-bottom:15px}
+.chip{font-weight:650;border-radius:999px}
+#monthView{background:var(--card);border:1px solid var(--line);padding:15px 12px 12px;border-radius:23px;box-shadow:0 8px 24px #35305e0a}
+.bar{margin-bottom:14px}.bar b{font-size:20px;letter-spacing:-.035em}
+.bar button{border-radius:50%;background:#f4f0ff;border-color:#eee8ff;color:#5e36b5;font-size:24px}
+.grid{gap:3px}.dow{font-size:12px;font-weight:700;padding:8px 0 10px}
+.day{border:1px solid #f0eef8;border-radius:11px;min-height:51px;font-size:15px;font-weight:650;transition:background .15s}
+.day.sel{background:#277ee5;color:#fff;outline:0;box-shadow:0 3px 9px #287ce54a}.day.today:not(.sel){border:2px solid #8256d7}
+.day.vacation-day:after{height:4px;bottom:3px;border-radius:8px}.day.holiday-day:before{border-top-color:#f5a623}
+.panel{border-radius:22px;padding:17px;box-shadow:0 6px 25px #35305e0a}
+.panel h2{font-size:19px;font-weight:800;letter-spacing:-.03em}
+#dayPanel{min-height:170px}#dayTitle{margin-bottom:15px}
+.ev{border:1px solid var(--line)!important;border-radius:13px;padding:11px 12px;margin:7px 0;background:var(--card);box-shadow:0 2px 7px #1c235608}
+.ev .bar2{width:5px;border-radius:5px}.ev .t b{font-size:14px}.ev small{font-size:12px;line-height:1.5}
+#listPanel .lh{background:#f1effb;color:#4f4b78;border-radius:10px;padding:8px 11px;margin:15px 0 8px;font-size:13px}
+.agendaHint{font-size:12px;color:var(--muted);margin:0 0 10px}
+#formPanel{padding:20px 17px}#formPanel h2{font-size:23px;margin-bottom:18px}
+#formPanel .f{gap:14px}#formPanel .f label{font-size:12px;font-weight:750;margin-bottom:6px;color:var(--muted)}
+#formPanel input:not([type=checkbox]),#formPanel select{background:#f8f8fd;border:1px solid #e5e5f2;border-radius:13px;padding:13px 12px;min-height:47px}
+#formPanel input:focus,#formPanel select:focus{outline:2px solid #b79ae9;outline-offset:1px}
+#formPanel .chk{padding:8px 0}#formPanel .chips{gap:8px}
+.btn{background:var(--accent);border-radius:13px;min-height:47px;box-shadow:0 3px 10px #6238b524}
+.btn.sec{background:#f2f0fb;box-shadow:none;border-color:#e7e3f3}
+#formPanel #save{margin-top:8px;background:linear-gradient(120deg,#8754e5,#6633c1)}
+#familyNav{border:1px solid var(--line);border-radius:22px 22px 0 0;box-shadow:0 -8px 28px #2e255a17}
+#familyNav button.active{background:#f0e6ff;color:#6532bd}
+.homeHero{background:linear-gradient(145deg,#253968b8,#724a9ca0 56%,#d88ba7a8),linear-gradient(145deg,#273a71,#c48a9f);min-height:244px}
+.homeHero h2{font-size:30px}.homeAvatar .portrait{width:62px;height:62px}
+.homeQuick{margin-top:14px}.homeTile{min-height:116px;border-radius:20px;box-shadow:0 6px 20px #28234f0d}
+.homeTile .tileIcon{font-size:29px}.homeSectionTitle h2{font-size:19px}
+.upcomingRow{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:5px 0}.upcomingRow:last-child{border-bottom:0}
+.upcomingDate{font-size:12px;font-weight:800;color:#5d4c99;background:#f0edfc;border-radius:10px;padding:8px 6px;min-width:52px;text-align:center}
+.upcomingRow .ev{flex:1;min-width:0;border:0!important;box-shadow:none;margin:0;padding:7px 3px}
+.familyPage.panel{padding:20px 17px}.familyForm{gap:10px}.familyItem{border-bottom:1px solid var(--line);padding:13px 4px}
+:root[data-theme="dark"]{--accent:#a67af5;--bg:#171725;--card:#24243a;--text:#f5f3ff;--muted:#aaa7c3;--line:#39384f}
+:root[data-theme="dark"] body{background:var(--bg)}
+:root[data-theme="dark"] #listPanel .lh,:root[data-theme="dark"] .upcomingDate{background:#35304f;color:#e5d6ff}
+:root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select{background:#302f45;border-color:#44415e}
+@media(min-width:620px){.day{min-height:68px}.homeHero{min-height:265px}}
+@media(max-width:380px){.top h1{font-size:17px}.top{padding:12px}.day{min-height:44px;font-size:13px}.wrap{padding-left:10px;padding-right:10px}}
 </style></head>
 <body>
 <div class="wrap">
@@ -131,8 +183,8 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.
     <button class="btn" id="newBtn" style="width:100%;margin-top:10px">＋ Neuer Termin</button>
   </div>
   <div class="panel" id="listPanel" style="display:none">
-    <h2>Die nächsten 60 Tage</h2>
-    <div id="agenda"></div>
+    <h2>Die nächsten Termine</h2><p class="agendaHint">Ferien werden als Zeitraum zusammengefasst.</p>
+    <div id="agenda"></div><button class="btn sec" id="agendaMore" type="button" style="display:none;width:100%;margin-top:12px">Weitere Termine anzeigen</button>
   </div>
   <div class="panel" id="formPanel" style="display:none">
     <h2 id="formTitle">Neuer Termin</h2>
@@ -176,6 +228,8 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.
   <button type="button" class="homeTile" data-go="calendar"><span class="tileIcon">📅</span><strong>Kalender</strong><small>Alle Termine</small></button>
   <button type="button" class="homeTile" data-go="more"><span class="tileIcon">⚙️</span><strong>Einstellungen</strong><small>Design & Familie</small></button>
  </div>
+ <div class="homeSectionTitle"><h2>Die nächsten Termine</h2><button id="homeUpcomingLink" type="button">Alle ansehen ›</button></div>
+ <div class="homeAgenda" id="homeUpcoming"></div>
  <div class="homeAppearance"><label for="homeScene">Startseiten-Hintergrund</label><select id="homeScene"><option value="sunset">Abendhimmel</option><option value="ocean">Meer</option><option value="forest">Natur</option><option value="plain">Schlicht</option></select></div>
 </section>
 <section id="familyTasks" class="familyPage panel" aria-label="Aufgaben">
@@ -348,16 +402,33 @@ function renderMonth(){
   $("empty").style.display=list.length?"none":"block";
   list.forEach(function(e){l.appendChild(evRow(e));});
 }
-function renderAgenda(){
-  var a=$("agenda");a.innerHTML="";var any=false,s=dn(iso(today));
-  for(var i=0;i<60;i++){
-    var k=fromDn(s+i),list=evs(k);if(!list.length)continue;any=true;
-    var h=document.createElement("div");h.className="lh";
-    h.textContent=new Date(k+"T00:00").toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
-    a.appendChild(h);list.forEach(function(e){a.appendChild(evRow(e));});
-  }
-  if(!any){var e=document.createElement("div");e.className="empty";e.textContent="Keine anstehenden Termine.";a.appendChild(e);}
+var agendaDays=14;
+function agendaRows(startDate,days){
+ var rows=[],seenVacations={};
+ for(var i=0;i<days;i++){
+  var k=fromDn(dn(startDate)+i);
+  evs(k).forEach(function(e){
+   if(e.calendarType==='vacation'){
+    var period=bavarianSchoolBreaks.find(function(x){return k>=x[0]&&k<=x[1]&&e.title.indexOf(x[2])>=0;});
+    if(period){var key=period.join('|');if(seenVacations[key])return;seenVacations[key]=true;
+     // One period row, including when the selected range starts mid-vacation.
+     rows.push({day:k,event:Object.assign({},e,{title:'🏖️ '+period[2]+' · '+fmtD(period[0])+'–'+fmtD(period[1]),start:k,end:k,note:'Schulferien Bayern · Lara'})});return;}
+   }
+   rows.push({day:k,event:e});
+  });
+ }
+ return rows;
 }
+function renderAgenda(){
+ var a=$('agenda');a.replaceChildren();var rows=agendaRows(iso(today),agendaDays),last='';
+ rows.forEach(function(item){
+  if(item.day!==last){last=item.day;var h=document.createElement('div');h.className='lh';h.textContent=new Date(last+'T00:00').toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});a.appendChild(h);}
+  a.appendChild(evRow(item.event));
+ });
+ if(!rows.length){var e=document.createElement('div');e.className='empty';e.textContent='Keine anstehenden Termine.';a.appendChild(e);}
+ $('agendaMore').style.display=agendaDays<60?'block':'none';
+}
+$('agendaMore').onclick=function(){agendaDays=Math.min(60,agendaDays+14);renderAgenda();};
 function openForm(e){
   editId=e?e.id:null;
   $("formTitle").textContent=e?"Termin bearbeiten":"Neuer Termin";
@@ -498,12 +569,16 @@ function homeRender(){
  var tasks=(familyData.tasks||[]).filter(function(x){return !x.completed}).length;
  var shopping=(familyData.shopping_items||[]).filter(function(x){return !x.completed}).length;
  $('homeTasksCount').textContent=tasks+' offen';$('homeShoppingCount').textContent=shopping+' Artikel';
+ var upcoming=$('homeUpcoming');upcoming.replaceChildren();var next=agendaRows(fromDn(dn(k)+1),14).filter(function(x){return x.event.calendarType!=='vacation'||x.event.title;}).slice(0,4);
+ if(!next.length){var no=document.createElement('div');no.className='homeEmpty';no.textContent='In den nächsten 14 Tagen keine Termine.';upcoming.appendChild(no);}
+ else next.forEach(function(x){var row=document.createElement('div');row.className='upcomingRow';var date=document.createElement('span');date.className='upcomingDate';date.textContent=new Date(x.day+'T00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});row.appendChild(date);row.appendChild(evRow(x.event));upcoming.appendChild(row);});
  var scene=localStorage.getItem('famcal_home_scene')||'sunset';
  if(!['sunset','ocean','forest','plain'].includes(scene))scene='sunset';
  $('homeHero').dataset.scene=scene;$('homeScene').value=scene;
 }
 $('homeScene').onchange=function(){localStorage.setItem('famcal_home_scene',this.value);homeRender();};
 $('homeAllEvents').onclick=function(){familySwitch('calendar');};
+$('homeUpcomingLink').onclick=function(){familySwitch('calendar');mode='list';render();};
 document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){familySwitch(b.dataset.go);};});
 
 function familyElement(tag,content,cls){
