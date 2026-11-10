@@ -105,6 +105,14 @@ input:disabled{opacity:.4}
         <select id="rep"><option value="none">Keine</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></div>
       <div><label for="reminder">Erinnerung</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select><small class="empty">Die Benachrichtigung wird erst in der Android-App aktiviert.</small></div>
       <div><label for="note">Ort / Notiz (optional)</label><input id="note" maxlength="200"></div>
+
+      <div id="attachmentsPanel" style="display:none;border:1px solid var(--line);border-radius:10px;padding:10px">
+        <label for="attachmentFile">Anhänge (PDF, JPG, PNG, WEBP; max. 10 MB)</label>
+        <input id="attachmentFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp">
+        <button id="attachmentUpload" class="btn sec" type="button" style="margin-top:8px">Datei hochladen</button>
+        <div id="attachmentList" style="margin-top:8px"></div>
+        <small id="attachmentStatus" role="status"></small>
+      </div>
       <div class="err" id="err"></div>
       <button class="btn" id="save" type="button">Speichern</button>
       <button class="btn sec" id="cancel" type="button">Abbrechen</button>
@@ -546,6 +554,71 @@ evRow=function(e){
  });
  var note=document.createElement('p');note.className='empty';note.textContent='Ferientermine laut Bayerischem Kultusministerium. Feiertage gelten für Bayern; Mariä Himmelfahrt nur in Gemeinden mit überwiegend katholischer Bevölkerung. Ferien außerhalb der hinterlegten Zeiträume werden nicht angezeigt.';panel.appendChild(note);
 })();
+
+
+// Phase 2.3: private Supabase Storage attachments for existing events.
+var ATTACH_BUCKET='family-attachments',ATTACH_MAX=10*1024*1024;
+var ATTACH_TYPES=['application/pdf','image/jpeg','image/png','image/webp'];
+var originalAttachmentOpenForm=openForm;
+openForm=function(e){
+ originalAttachmentOpenForm(e);
+ var allowed=!!(e&&!e.anniversary&&!e.calendarReadOnly);
+ $('attachmentsPanel').style.display=allowed?'block':'none';
+ $('attachmentFile').value='';$('attachmentList').replaceChildren();$('attachmentStatus').textContent='';
+ if(allowed)attachmentLoad(e.id);
+};
+function attachmentMessage(message){$('attachmentStatus').textContent=message;}
+async function attachmentLoad(eventId){
+ if(!sb||!sessionUser||!eventId)return;
+ var r=await sb.from('event_attachments').select('id,file_name,storage_path,size_bytes,content_type,created_at').eq('family_id',familyId).eq('event_id',eventId).order('created_at',{ascending:false});
+ if(editId!==eventId)return;
+ var root=$('attachmentList');root.replaceChildren();
+ if(r.error){attachmentMessage('Anhänge konnten nicht geladen werden: '+msg(r.error));return;}
+ if(!r.data.length){root.textContent='Keine Anhänge vorhanden.';return;}
+ r.data.forEach(function(a){
+  var line=document.createElement('div');line.className='familyItem';
+  var name=document.createElement('span');name.textContent=a.file_name+' ('+Math.ceil(a.size_bytes/1024)+' KB)';line.appendChild(name);
+  var open=document.createElement('button');open.type='button';open.textContent='Öffnen';
+  open.onclick=async function(){
+   var tab=window.open('about:blank','_blank');
+   var result=await sb.storage.from(ATTACH_BUCKET).createSignedUrl(a.storage_path,60);
+   if(result.error){if(tab)tab.close();attachmentMessage('Öffnen fehlgeschlagen: '+msg(result.error));return;}
+   if(tab){tab.opener=null;tab.location.href=result.data.signedUrl;}else attachmentMessage('Popup blockiert. Bitte Popups für diese Seite erlauben.');
+  };
+  line.appendChild(open);
+  var del=document.createElement('button');del.type='button';del.textContent='Löschen';
+  del.onclick=async function(){
+   if(!confirm('Anhang endgültig löschen?'))return;
+   del.disabled=true;
+   var result=await sb.storage.from(ATTACH_BUCKET).remove([a.storage_path]);
+   if(result.error){attachmentMessage('Löschen fehlgeschlagen: '+msg(result.error));del.disabled=false;return;}
+   var meta=await sb.from('event_attachments').delete().eq('id',a.id).eq('family_id',familyId);
+   if(meta.error)attachmentMessage('Datei gelöscht, Metadaten konnten nicht entfernt werden: '+msg(meta.error));
+   else attachmentMessage('Anhang gelöscht.');
+   await attachmentLoad(eventId);
+  };
+  line.appendChild(del);root.appendChild(line);
+ });
+}
+$('attachmentUpload').onclick=async function(){
+ var f=$('attachmentFile').files[0],eventId=editId;
+ if(!eventId){attachmentMessage('Zuerst den Termin speichern und erneut öffnen.');return;}
+ if(!f){attachmentMessage('Bitte eine Datei auswählen.');return;}
+ if(f.size>ATTACH_MAX||!ATTACH_TYPES.includes(f.type)){attachmentMessage('Nur PDF/JPG/PNG/WEBP bis 10 MB erlaubt.');return;}
+ var button=$('attachmentUpload');button.disabled=true;attachmentMessage('Datei wird hochgeladen …');
+ var ext={'application/pdf':'pdf','image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[f.type];
+ var uuid=(window.crypto&&window.crypto.randomUUID)?window.crypto.randomUUID():null;
+ if(!uuid){attachmentMessage('Sicherer Dateiname konnte nicht erzeugt werden.');button.disabled=false;return;}
+ var path=familyId+'/'+eventId+'/'+uuid+'.'+ext;
+ try{
+  var uploaded=await sb.storage.from(ATTACH_BUCKET).upload(path,f,{contentType:f.type,upsert:false});
+  if(uploaded.error)throw uploaded.error;
+  var inserted=await sb.from('event_attachments').insert({family_id:familyId,event_id:eventId,storage_path:path,file_name:f.name.slice(0,200),size_bytes:f.size,content_type:f.type});
+  if(inserted.error){await sb.storage.from(ATTACH_BUCKET).remove([path]);throw inserted.error;}
+  attachmentMessage('Datei gespeichert.');$('attachmentFile').value='';await attachmentLoad(eventId);
+ }catch(e){attachmentMessage('Upload fehlgeschlagen: '+msg(e));}
+ finally{button.disabled=false;}
+};
 
 locked('Bitte anmelden');setup();
 </script>
