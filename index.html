@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
+<head><script>document.documentElement.setAttribute("data-theme","light");</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Familienkalender</title>
@@ -260,6 +260,59 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 :root[data-theme="dark"] .familyForm,:root[data-theme="dark"] .attachmentCard{background:#2b2a42}
 :root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select{background:#302f45;color:var(--text);border-color:#44415e}
 @media(max-width:390px){.wrap{padding-left:9px;padding-right:9px}.day{min-height:43px}.homeAvatar .portrait{width:53px;height:53px}.homeHero{padding:17px 14px}.top h1{font-size:19px}}
+</style><style>
+/* Family Modern V4: consistent explicit and system dark themes. */
+:root{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark}}
+:root[data-theme="light"]{color-scheme:light}
+/* The same dark palette applies to explicit dark and system dark. */
+:root[data-theme="dark"]{
+ --bg:#171725;--card:#25253b;--text:#f5f4ff;--muted:#b9b8cf;--line:#45445e;--accent:#ad85ff;
+}
+:root[data-theme="dark"] body{background:#171725;color:var(--text)}
+:root[data-theme="dark"] .day{background:#292940;color:#f5f4ff;border-color:#45445e}
+:root[data-theme="dark"] .day.out{color:#c8c6d8;opacity:.65}
+:root[data-theme="dark"] .day.sel{background:linear-gradient(150deg,#378fe9,#1d63c7);color:#fff}
+:root[data-theme="dark"] .dow,:root[data-theme="dark"] .bar b,:root[data-theme="dark"] #dayPanel h2{color:#f5f4ff}
+:root[data-theme="dark"] .panel,:root[data-theme="dark"] #monthView,:root[data-theme="dark"] .homeTile,:root[data-theme="dark"] .homeAgenda{background:#25253b;color:#f5f4ff;border-color:#45445e}
+:root[data-theme="dark"] .ev,:root[data-theme="dark"] .familyItem{background:#2c2b43;color:#f5f4ff;border-color:#48455f!important}
+:root[data-theme="dark"] .ev small,:root[data-theme="dark"] .empty,:root[data-theme="dark"] .fieldCaption,:root[data-theme="dark"] #formPanel .f label,:root[data-theme="dark"] .peopleField>small{color:#c4c2d5}
+:root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select,:root[data-theme="dark"] textarea,:root[data-theme="dark"] input:not([type=checkbox]),:root[data-theme="dark"] select{background:#302f45;color:#f5f4ff;border-color:#59566e;opacity:1}
+:root[data-theme="dark"] input::placeholder,:root[data-theme="dark"] textarea::placeholder{color:#b5b2c9;opacity:1}
+:root[data-theme="dark"] input[type="date"],:root[data-theme="dark"] input[type="time"]{color-scheme:dark}
+:root[data-theme="dark"] input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.85}
+:root[data-theme="dark"] #familyNav{background:#222235;border-color:#45445e}
+:root[data-theme="dark"] #familyNav button{color:#ddd9f1}
+:root[data-theme="dark"] #familyNav button.active{background:#493669;color:#f5eaff}
+:root[data-theme="dark"] .familyForm,:root[data-theme="dark"] .attachmentCard{background:#2c2b43}
+:root[data-theme="dark"] .btn.sec,:root[data-theme="dark"] #formPanel #cancel{background:#37334e;color:#f5f4ff;border-color:#59566e}
+:root[data-theme="dark"] .bar button{background:#37334e;color:#f5f4ff}
+:root[data-theme="dark"] .upcomingDate,:root[data-theme="dark"] #listPanel .lh{background:#38314e;color:#f0e4ff}
+:root[data-theme="dark"] .emptySymbol{background:#38314e;color:#d2b9ff}
+@media(prefers-color-scheme:dark){
+:root:not([data-theme="light"]){--bg:#171725;--card:#25253b;--text:#f5f4ff;--muted:#b9b8cf;--line:#45445e;--accent:#ad85ff}
+:root:not([data-theme="light"]) body{background:#171725;color:var(--text)}
+:root:not([data-theme="light"]) .day{background:#292940;color:#f5f4ff;border-color:#45445e}
+:root:not([data-theme="light"]) .day.out{color:#c8c6d8;opacity:.65}
+:root:not([data-theme="light"]) .day.sel{background:linear-gradient(150deg,#378fe9,#1d63c7);color:#fff}
+:root:not([data-theme="light"]) .dow,:root:not([data-theme="light"]) .bar b,:root:not([data-theme="light"]) #dayPanel h2{color:#f5f4ff}
+:root:not([data-theme="light"]) .panel,:root:not([data-theme="light"]) #monthView,:root:not([data-theme="light"]) .homeTile,:root:not([data-theme="light"]) .homeAgenda{background:#25253b;color:#f5f4ff;border-color:#45445e}
+:root:not([data-theme="light"]) .ev,:root:not([data-theme="light"]) .familyItem{background:#2c2b43;color:#f5f4ff;border-color:#48455f!important}
+:root:not([data-theme="light"]) .ev small,:root:not([data-theme="light"]) .empty,:root:not([data-theme="light"]) .fieldCaption,:root:not([data-theme="light"]) #formPanel .f label,:root:not([data-theme="light"]) .peopleField>small{color:#c4c2d5}
+:root:not([data-theme="light"]) #formPanel input:not([type=checkbox]),:root:not([data-theme="light"]) #formPanel select,:root:not([data-theme="light"]) textarea,:root:not([data-theme="light"]) input:not([type=checkbox]),:root:not([data-theme="light"]) select{background:#302f45;color:#f5f4ff;border-color:#59566e;opacity:1}
+:root:not([data-theme="light"]) input::placeholder,:root:not([data-theme="light"]) textarea::placeholder{color:#b5b2c9;opacity:1}
+:root:not([data-theme="light"]) input[type="date"],:root:not([data-theme="light"]) input[type="time"]{color-scheme:dark}
+:root:not([data-theme="light"]) input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.85}
+:root:not([data-theme="light"]) #familyNav{background:#222235;border-color:#45445e}
+:root:not([data-theme="light"]) #familyNav button{color:#ddd9f1}
+:root:not([data-theme="light"]) #familyNav button.active{background:#493669;color:#f5eaff}
+:root:not([data-theme="light"]) .familyForm,:root:not([data-theme="light"]) .attachmentCard{background:#2c2b43}
+:root:not([data-theme="light"]) .btn.sec,:root:not([data-theme="light"]) #formPanel #cancel{background:#37334e;color:#f5f4ff;border-color:#59566e}
+:root:not([data-theme="light"]) .bar button{background:#37334e;color:#f5f4ff}
+:root:not([data-theme="light"]) .upcomingDate,:root:not([data-theme="light"]) #listPanel .lh{background:#38314e;color:#f0e4ff}
+:root:not([data-theme="light"]) .emptySymbol{background:#38314e;color:#d2b9ff}
+}
 </style></head>
 <body>
 <div class="wrap">
@@ -361,7 +414,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
  <div class="settingsGroupTitle">Design &amp; Darstellung</div>
  <h2 style="margin-top:22px">Darstellung</h2>
  <label for="familyTheme">Design</label>
- <select id="familyTheme"><option value="system">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>
+ <select id="familyTheme"><option value="light">Hell</option><option value="dark">Dunkel</option></select>
  <label for="familyAccent">Akzentfarbe</label>
  <input id="familyAccent" type="color" value="#d9622b" style="height:46px">
  <button id="savePrefs" class="btn" type="button" style="margin-top:8px">Einstellungen speichern</button>
@@ -739,10 +792,10 @@ $('anniversaryForm').onsubmit=function(e){
  familyMutate('anniversaries','insert',{title:title,kind:$('anniversaryKind').value,event_date:date});$('anniversaryTitle').value='';
 };
 function applyFamilyPrefs(p){
- $('familyTheme').value=p.theme||'system';$('familyAccent').value=p.accent_color||'#d9622b';
- if(p.theme==='system')document.documentElement.removeAttribute('data-theme');
- else document.documentElement.setAttribute('data-theme',p.theme);
- document.documentElement.style.setProperty('--accent',p.accent_color||'#d9622b');
+ var chosenTheme=p.theme==='dark'?'dark':'light';
+ $('familyTheme').value=chosenTheme;$('familyAccent').value=p.accent_color||'#7541d6';
+ document.documentElement.setAttribute('data-theme',chosenTheme);
+ document.documentElement.style.setProperty('--accent',p.accent_color||'#7541d6');
 }
 async function loadFamilyPrefs(){
  var r=await sb.from('user_preferences').select('theme,accent_color').eq('family_id',familyId).eq('user_id',sessionUser.id).maybeSingle();
