@@ -73,6 +73,47 @@ input:disabled{opacity:.4}
 .day.vacation-day::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:4px;border-radius:3px;background:#e0559a;opacity:.65;pointer-events:none}
 .day.holiday-day::before{content:"";position:absolute;top:0;right:0;border-top:11px solid #d9622b;border-left:11px solid transparent;pointer-events:none}
 .day .dots{margin-bottom:5px}
+</style><style>
+/* Family Modern v1: additive presentation layer */
+.wrap[data-page="home"] .top,.wrap[data-page="home"] > #chips,.wrap[data-page="home"] #monthView,.wrap[data-page="home"] #dayPanel{display:none!important}
+.wrap[data-page="tasks"] .top,.wrap[data-page="shopping"] .top,.wrap[data-page="more"] .top{display:none!important}
+:root{--bg:#f5f6fb;--card:#fff;--text:#22263b;--muted:#747b91;--line:#e8eaf2;--accent:#2678e8}
+:root[data-theme="dark"]{--bg:#151824;--card:#232839;--text:#f4f5fa;--muted:#a3aac0;--line:#363c51}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.012em}
+.wrap{max-width:660px;padding:18px 16px 104px}
+.top{padding:6px 2px 12px}.top h1{font-size:22px;font-weight:800;letter-spacing:-.045em}
+.panel{border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 6px 22px rgba(32,43,78,.045)}
+.panel h2{font-size:17px;font-weight:750}.bar{margin:12px 0}.bar b{font-size:18px}
+.bar button,.seg,.seg button,.btn,input,select{border-radius:12px}
+.btn{min-height:44px}.chips{gap:8px}.chip{padding:7px 13px;border-width:1.5px}
+.day{border-radius:11px;min-height:44px}.day.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.ev{padding:12px 8px;border-radius:12px}.ev .t b{font-size:14px}
+.familyItem{padding:13px 3px}
+#familyNav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,660px);padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px));gap:2px;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(22,35,73,.06);z-index:15}
+#familyNav button{border:0;border-radius:12px;background:transparent;padding:8px 1px;display:flex;align-items:center;flex-direction:column;gap:2px;font-size:11px;font-weight:600;min-width:0}
+#familyNav button.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+#familyNav .navIcon{font-size:21px;line-height:1.25}
+#familyHome{display:none}#familyHome.active{display:block}
+.homeHero{position:relative;overflow:hidden;border-radius:24px;min-height:225px;padding:23px 19px;color:#fff;background:linear-gradient(145deg,#283e76 0%,#705ca6 54%,#d88ba7 100%);isolation:isolate}
+.homeHero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 88% 14%,rgba(255,226,163,.6),transparent 36%);z-index:-1}
+.homeHero[data-scene="ocean"]{background:linear-gradient(140deg,#0d506c,#2886a5 54%,#a3d8dd)}
+.homeHero[data-scene="forest"]{background:linear-gradient(140deg,#174b4b,#377c6a 55%,#a3b883)}
+.homeHero[data-scene="plain"]{background:linear-gradient(140deg,#364c7a,#6374a7)}
+.homeHero h2{font-size:27px;margin:12px 0 4px;letter-spacing:-.05em}.homeHero p{margin:0;color:#f3f2ff}
+.heroKicker{font-size:13px;font-weight:650;opacity:.92}
+.homeAvatars{display:flex;gap:15px;margin-top:24px;justify-content:space-between;max-width:340px}
+.homeAvatar{text-align:center;font-size:12px;color:white;font-weight:650}
+.homeAvatar .portrait{display:grid;place-items:center;width:58px;height:58px;border:3px solid #fff;border-radius:50%;background:var(--portrait);font-size:20px;font-weight:800;box-shadow:0 4px 12px #1d234d55;margin-bottom:5px}
+.homeSectionTitle{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 9px}.homeSectionTitle h2{margin:0;font-size:18px}.homeSectionTitle button{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer}
+.homeAgenda{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:9px 13px;box-shadow:0 5px 18px #1a27510b}
+.homeAgenda .ev{border:0;border-bottom:1px solid var(--line)}.homeAgenda .ev:last-child{border-bottom:0}
+.homeEmpty{padding:20px 8px;color:var(--muted);font-size:14px}
+.homeQuick{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:13px}
+.homeTile{border:1px solid var(--line);border-radius:18px;background:var(--card);padding:17px;text-align:left;min-height:111px;cursor:pointer;color:var(--text);box-shadow:0 5px 18px #1a27510b}
+.homeTile strong{display:block;font-size:16px;margin-top:9px}.homeTile small{color:var(--muted)}.homeTile .tileIcon{font-size:26px}
+.homeAppearance{margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.homeAppearance label{font-size:13px;color:var(--muted)}.homeAppearance select{width:auto;flex:1;min-width:140px;background:var(--card);font-size:13px}
+@media(max-width:370px){.homeAvatars{gap:6px}.homeAvatar .portrait{width:51px;height:51px}.homeHero{padding:18px 14px}}
 </style></head>
 <body>
 <div class="wrap">
@@ -120,6 +161,23 @@ input:disabled{opacity:.4}
     </div>
   </div>
 
+<section id="familyHome" class="familyPage" aria-label="Startseite">
+ <div id="homeHero" class="homeHero" data-scene="sunset">
+  <div class="heroKicker">✦ UNSER FAMILIENKALENDER</div>
+  <h2 id="homeGreeting">Hallo zusammen 👋</h2>
+  <p id="homeDate"></p>
+  <div id="homeAvatars" class="homeAvatars" aria-label="Familienmitglieder"></div>
+ </div>
+ <div class="homeSectionTitle"><h2>Heute</h2><button id="homeAllEvents" type="button">Kalender öffnen ›</button></div>
+ <div class="homeAgenda" id="homeAgenda"></div>
+ <div class="homeQuick">
+  <button type="button" class="homeTile" data-go="tasks"><span class="tileIcon">☑️</span><strong>Aufgaben</strong><small id="homeTasksCount">Offene Aufgaben</small></button>
+  <button type="button" class="homeTile" data-go="shopping"><span class="tileIcon">🛒</span><strong>Einkaufsliste</strong><small id="homeShoppingCount">Artikel</small></button>
+  <button type="button" class="homeTile" data-go="calendar"><span class="tileIcon">📅</span><strong>Kalender</strong><small>Alle Termine</small></button>
+  <button type="button" class="homeTile" data-go="more"><span class="tileIcon">⚙️</span><strong>Einstellungen</strong><small>Design & Familie</small></button>
+ </div>
+ <div class="homeAppearance"><label for="homeScene">Startseiten-Hintergrund</label><select id="homeScene"><option value="sunset">Abendhimmel</option><option value="ocean">Meer</option><option value="forest">Natur</option><option value="plain">Schlicht</option></select></div>
+</section>
 <section id="familyTasks" class="familyPage panel" aria-label="Aufgaben">
  <h2>Gemeinsame Aufgaben</h2>
  <form id="taskForm" class="familyForm">
@@ -157,10 +215,11 @@ input:disabled{opacity:.4}
 </section>
 <p id="familyMessage" role="status" aria-live="polite"></p>
 <nav id="familyNav" aria-label="Bereiche">
- <button type="button" data-page="calendar" class="active">Kalender</button>
- <button type="button" data-page="tasks">Aufgaben</button>
- <button type="button" data-page="shopping">Einkauf</button>
- <button type="button" data-page="more">Mehr</button>
+ <button type="button" data-page="home" class="active"><span class="navIcon">⌂</span><span>Start</span></button>
+ <button type="button" data-page="calendar"><span class="navIcon">▦</span><span>Kalender</span></button>
+ <button type="button" data-page="tasks"><span class="navIcon">☑</span><span>Aufgaben</span></button>
+ <button type="button" data-page="shopping"><span class="navIcon">🛒</span><span>Einkauf</span></button>
+ <button type="button" data-page="more"><span class="navIcon">•••</span><span>Mehr</span></button>
 </nav>
   <button id="logoutBtn" type="button">Abmelden</button><p class="empty" id="status" style="text-align:center"></p>
 </div>
@@ -409,7 +468,10 @@ var familyChannels=[], familyRefreshTimer=null;
 function familyNotice(message){$('familyMessage').textContent=message||'';}
 function familySwitch(page){
  familyPage=page;
+ document.querySelector('.wrap').dataset.page=page;
  var cal=page==='calendar';
+ $('familyHome').classList.toggle('active',page==='home');
+ if(page==='home')homeRender();
  ['monthView','dayPanel','listPanel','formPanel','chips'].forEach(function(id){$(id).style.display=cal?'':'none';});
  document.querySelector('.top .seg').style.display=cal?'':'none';
  ['familyTasks','familyShopping','familyMore'].forEach(function(id){$(id).classList.toggle('active',id==='family'+page.charAt(0).toUpperCase()+page.slice(1));});
@@ -417,6 +479,33 @@ function familySwitch(page){
  if(cal)render();
 }
 document.querySelectorAll('#familyNav button').forEach(function(b){b.onclick=function(){familySwitch(b.dataset.page);};});
+
+// Family Modern: home dashboard, no new database tables required.
+function homeRender(){
+ var now=new Date(),k=iso(now);
+ $('homeDate').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ var hour=now.getHours();$('homeGreeting').textContent=(hour<11?'Guten Morgen':hour<18?'Hallo':'Guten Abend')+' 👋';
+ var avatars=$('homeAvatars');avatars.replaceChildren();
+ MEMBERS.forEach(function(m){
+  var item=document.createElement('div');item.className='homeAvatar';
+  var portrait=document.createElement('div');portrait.className='portrait';portrait.style.setProperty('--portrait',m.color);
+  portrait.textContent=m.pet?'🐾':m.name.charAt(0);portrait.setAttribute('aria-label',m.name);
+  var name=document.createElement('span');name.textContent=m.name.replace(' 🐕','');item.append(portrait,name);avatars.appendChild(item);
+ });
+ var agenda=$('homeAgenda');agenda.replaceChildren();var entries=evs(k);
+ if(!entries.length){var empty=document.createElement('div');empty.className='homeEmpty';empty.textContent='Heute stehen keine Termine an.';agenda.appendChild(empty);}
+ else entries.slice(0,5).forEach(function(e){agenda.appendChild(evRow(e));});
+ var tasks=(familyData.tasks||[]).filter(function(x){return !x.completed}).length;
+ var shopping=(familyData.shopping_items||[]).filter(function(x){return !x.completed}).length;
+ $('homeTasksCount').textContent=tasks+' offen';$('homeShoppingCount').textContent=shopping+' Artikel';
+ var scene=localStorage.getItem('famcal_home_scene')||'sunset';
+ if(!['sunset','ocean','forest','plain'].includes(scene))scene='sunset';
+ $('homeHero').dataset.scene=scene;$('homeScene').value=scene;
+}
+$('homeScene').onchange=function(){localStorage.setItem('famcal_home_scene',this.value);homeRender();};
+$('homeAllEvents').onclick=function(){familySwitch('calendar');};
+document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){familySwitch(b.dataset.go);};});
+
 function familyElement(tag,content,cls){
  var e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(cls)e.className=cls;return e;
 }
@@ -449,6 +538,7 @@ async function familyLoad(){
  var responses=await Promise.all(tables.map(function(t){return sb.from(t).select('*').eq('family_id',familyId).order('created_at',{ascending:false}).limit(1000);}));
  responses.forEach(function(r,i){if(r.error){familyNotice('Laden fehlgeschlagen ('+tables[i]+'): '+msg(r.error));return;}familyData[tables[i]]=r.data||[];familyDraw(tables[i]);});
  if(familyPage==='calendar')render();
+ if(familyPage==='home')homeRender();
 }
 async function familyMutate(table,action,data,id){
  if(!sb||!sessionUser){familyNotice('Bitte anmelden.');return;}
@@ -620,7 +710,7 @@ $('attachmentUpload').onclick=async function(){
  finally{button.disabled=false;}
 };
 
-locked('Bitte anmelden');setup();
+locked('Bitte anmelden');familySwitch('home');setup();
 </script>
 <script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js").catch(console.warn);</script></body>
 </html>
