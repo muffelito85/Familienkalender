@@ -166,12 +166,107 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
 :root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select{background:#302f45;border-color:#44415e}
 @media(min-width:620px){.day{min-height:68px}.homeHero{min-height:265px}}
 @media(max-width:380px){.top h1{font-size:17px}.top{padding:12px}.day{min-height:44px;font-size:13px}.wrap{padding-left:10px;padding-right:10px}}
+</style><style>
+/* Family Modern V3 — unified visual system for all existing functional views */
+:root{--accent:#7541d6;--bg:#f4f5fc;--card:#fff;--text:#202441;--muted:#68718d;--line:#e2e5f3}
+body{background:linear-gradient(180deg,#e8e9fa 0,#f4f5fc 340px);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:600px;padding:12px 14px 110px}
+.top{height:69px;background:linear-gradient(105deg,#4d418c,#8047a6 80%,#a253b7);border-radius:21px 21px 0 0;box-shadow:none;margin:0;padding:10px 17px;gap:10px}
+.top h1{font-size:22px;flex:1;letter-spacing:-.025em}
+.top .seg{border:0;background:#ffffff20;border-radius:12px;overflow:hidden}
+.top .seg button{padding:8px 11px;font-size:12px}
+.top .seg button.on{background:#fff;color:#6833bb}
+.calendarQuickAdd{width:35px;height:35px;border:0;border-radius:11px;background:#ffffff27;color:white;font-size:27px;line-height:1;cursor:pointer}
+.calendarPeople{padding:12px 15px 3px;background:linear-gradient(125deg,#4d418c,#8047a6 80%,#a253b7);border-radius:0 0 21px 21px;margin-bottom:12px}
+.calendarPeople .chips{margin:0;padding:0 0 13px;gap:8px}
+.calendarPeople .chip{color:white;border:1px solid #ffffffa8;background:#ffffff1c;font-size:12px;padding:5px 11px}
+.calendarPeople .chip.on{background:var(--c);border-color:var(--c);color:#fff}
+#monthView{border:1px solid #e5e6f4;border-radius:22px;padding:17px 12px 14px;box-shadow:0 8px 25px #3d366b12}
+.bar{padding:0 7px;margin-bottom:12px}
+.bar b{font-size:19px;color:var(--text)}
+.bar button{width:39px;height:39px;background:#f5f3fc;border:0;color:#514479;font-size:25px}
+.grid{gap:3px}
+.dow{font-weight:750;font-size:12px;color:#5c6080}
+.day{min-height:50px;aspect-ratio:1;border:1px solid #eeeff8;border-radius:9px;background:#fff;color:var(--text);font-weight:650;font-size:14px}
+.day.sel{background:linear-gradient(150deg,#208ee7,#1464cb);border-color:#1a77d7;color:white;box-shadow:0 3px 10px #2478d54d}
+.day.today:not(.sel){border:2px solid #8d59db}
+.day.vacation-day:after{height:4px;left:3px;right:3px;bottom:2px;background:#ef9ad3;opacity:.85}
+.day.holiday-day:before{border-top-color:#f6a72b}
+.dots{max-height:16px;overflow:hidden}
+.dot{width:5px;height:5px}
+.panel{border:1px solid var(--line);background:var(--card);border-radius:22px;box-shadow:0 7px 22px #36345e0b}
+#dayPanel{min-height:205px;padding:20px 16px}
+#dayPanel h2{font-size:17px;margin-bottom:16px}
+#dayPanel .empty{display:flex;align-items:center;flex-direction:column;justify-content:center;min-height:110px;gap:9px;text-align:center}
+#dayPanel .empty[style*="none"]{display:none!important}
+.emptySymbol{font-size:35px;color:#9475d2;background:#f1ecff;border-radius:18px;padding:10px 18px}
+#dayPanel #newBtn{margin-top:16px!important}
+.ev{border:1px solid #e9e8f5!important;border-radius:13px;padding:11px;margin:7px 0;background:linear-gradient(105deg,#fff,#fbfaff);box-shadow:0 2px 8px #1b214d08}
+.ev .bar2{min-width:5px}
+.ev .t b{font-size:14px}
+.ev small{color:#727894;font-size:12px}
+#listPanel .lh{background:#f0eefa;color:#4b4774;border-radius:10px;padding:8px 11px}
+#formPanel{padding:0 17px 17px;overflow:hidden}
+.formHead{display:flex;align-items:center;gap:12px;margin:0 -17px 20px;padding:12px 17px;background:linear-gradient(100deg,#51408c,#8551af);color:#fff}
+.formHead h2{flex:1;color:white!important;text-align:center;margin:0!important;font-size:19px!important}
+.formHead button{background:transparent;border:0;color:white;font-size:28px;cursor:pointer}
+.formHead span{font-size:21px}
+.fieldCaption{font-size:12px;font-weight:750;color:var(--muted);display:block;margin-bottom:5px}
+#formPanel .f{gap:13px}
+#formPanel .f label{font-weight:700;color:#505673}
+#formPanel input:not([type=checkbox]),#formPanel select{min-height:48px;background:#f7f8fd;border:1px solid #e0e3f0;border-radius:12px;padding:12px}
+#formPanel .peopleField>small{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
+#formPanel .chips{margin:5px 0 0!important;gap:7px}
+#formPanel .chip{font-size:12px;padding:8px 10px}
+#formPanel #save{background:linear-gradient(105deg,#8851e6,#6630bd);border-radius:13px}
+#formPanel #cancel{background:#eaeafa;color:#242747;border:0}
+.attachmentCard{border:1px solid var(--line);background:#faf9ff;border-radius:14px;padding:12px}
+.familyPage.panel{padding:19px 17px}
+.sectionHead{display:flex;gap:13px;align-items:center;margin-bottom:19px;padding:0 0 14px;border-bottom:1px solid var(--line)}
+.sectionHead>span{display:grid;place-items:center;font-size:25px;color:#7541d6;background:#eee8ff;border-radius:14px;width:48px;height:48px}
+.sectionHead h2{font-size:23px;margin:0}
+.sectionHead small{font-size:12px;color:var(--muted)}
+.familyForm{background:#f8f8fd;border:1px solid var(--line);border-radius:16px;padding:12px;gap:9px}
+.familyForm input,.familyForm select{background:white;min-height:45px}
+.familyItem{border:1px solid var(--line);border-radius:12px;margin:7px 0;padding:12px;background:#fff}
+.settingsGroupTitle{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#7c66a9;margin:23px 0 12px}
+#familyMore>label{display:block;font-weight:700;margin:10px 0 5px}
+#familyMore>select{margin-bottom:8px}
+.homeHero{min-height:258px;background:
+radial-gradient(ellipse at 83% 36%,#ffd5a9a6 0,transparent 27%),
+linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25px}
+.homeHero:after{content:"";position:absolute;inset:auto 0 0;height:90px;z-index:-1;opacity:.6;background:#343d7d;clip-path:polygon(0 77%,15% 45%,24% 64%,38% 22%,50% 66%,65% 26%,76% 60%,90% 20%,100% 58%,100% 100%,0 100%)}
+.heroBrand{font-size:18px;font-weight:800;display:flex;justify-content:space-between;align-items:center;letter-spacing:-.03em}
+.heroBrand span{font-size:22px}
+.homeHero h2{margin:17px 0 4px;font-size:28px}
+.homeAvatars{max-width:420px;gap:8px;margin-top:21px}
+.homeAvatar .portrait{width:62px;height:62px;border:3px solid white;box-shadow:0 3px 12px #191b4b55}
+.homeAvatar{font-size:12px}
+.homeSectionTitle h2{font-size:18px}
+.homeAgenda{border-radius:19px}
+.homeQuick{gap:10px}
+.homeTile{min-height:100px;border-radius:18px;padding:14px}
+.homeTile .tileIcon{font-size:25px}
+.homeTile strong{font-size:15px;margin-top:6px}
+#familyNav{max-width:600px;bottom:0;border:1px solid #e5e5f3;border-radius:22px 22px 0 0;box-shadow:0 -6px 26px #34306a1c;padding:7px 9px calc(8px + env(safe-area-inset-bottom,0px))}
+#familyNav button{border-radius:13px;font-size:11px;padding:8px 1px}
+#familyNav .navIcon{font-size:23px}
+#familyNav button.active{background:#efe4ff;color:#6230c1}
+.btn{background:linear-gradient(105deg,#8552df,#6734c3)}
+.btn.sec{background:#eeedfa;color:#302b53}
+:root[data-theme="dark"]{--bg:#171725;--card:#25253b;--text:#f5f4ff;--muted:#aaa7c3;--line:#39384f}
+:root[data-theme="dark"] body{background:#171725}
+:root[data-theme="dark"] .day,:root[data-theme="dark"] .familyItem,:root[data-theme="dark"] .ev{background:#292940;color:var(--text);border-color:#45435c!important}
+:root[data-theme="dark"] .familyForm,:root[data-theme="dark"] .attachmentCard{background:#2b2a42}
+:root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select{background:#302f45;color:var(--text);border-color:#44415e}
+@media(max-width:390px){.wrap{padding-left:9px;padding-right:9px}.day{min-height:43px}.homeAvatar .portrait{width:53px;height:53px}.homeHero{padding:17px 14px}.top h1{font-size:19px}}
 </style></head>
 <body>
 <div class="wrap">
-  <div class="top"><h1>👨‍👩‍👧‍👦 Familienkalender</h1>
+  <div class="top"><h1 id="calendarTopTitle">Kalender</h1>
+    <button class="calendarQuickAdd" id="calendarQuickAdd" type="button" aria-label="Neuen Termin erstellen">＋</button>
     <div class="seg"><button id="vm" class="on">Monat</button><button id="vl">Liste</button></div></div>
-  <div class="chips" id="chips"></div>
+  <div class="calendarPeople"><div class="chips" id="chips"></div></div>
   <div id="monthView">
     <div class="bar"><button id="prev" aria-label="Zurück">‹</button><b id="title"></b><button id="next" aria-label="Weiter">›</button></div>
     <div class="grid" id="grid"></div>
@@ -179,7 +274,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
   <div class="panel" id="dayPanel">
     <h2 id="dayTitle"></h2>
     <div id="list"></div>
-    <div class="empty" id="empty">Keine Termine an diesem Tag.</div>
+    <div class="empty" id="empty"><span class="emptySymbol" aria-hidden="true">▣✓</span><span>Keine Termine an diesem Tag.</span></div>
     <button class="btn" id="newBtn" style="width:100%;margin-top:10px">＋ Neuer Termin</button>
   </div>
   <div class="panel" id="listPanel" style="display:none">
@@ -187,19 +282,20 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
     <div id="agenda"></div><button class="btn sec" id="agendaMore" type="button" style="display:none;width:100%;margin-top:12px">Weitere Termine anzeigen</button>
   </div>
   <div class="panel" id="formPanel" style="display:none">
-    <h2 id="formTitle">Neuer Termin</h2>
+    <div class="formHead"><button type="button" id="formBack" aria-label="Zurück">×</button><h2 id="formTitle">Neuer Termin</h2><span aria-hidden="true">✎</span></div>
+    <label class="fieldCaption" for="et">Titel</label>
     <div class="f">
       <input id="et" placeholder="Titel, z. B. Zahnarzt" maxlength="80">
       <div class="chk"><input id="ad" type="checkbox"><label for="ad" style="margin:0;font-size:15px;color:var(--text)">Ganztägig</label></div>
       <div class="row"><div><label for="sd">Beginn</label><input id="sd" type="date"></div><div><label for="st">Uhrzeit</label><input id="st" type="time"></div></div>
       <div class="row"><div><label for="ed">Ende</label><input id="ed" type="date"></div><div><label for="etm">Uhrzeit</label><input id="etm" type="time"></div></div>
-      <div><label>Wer? (keine Auswahl = Dani, Caro und Lara)</label><div class="chips" id="fchips" style="margin:4px 0 0"></div></div>
+      <div class="peopleField"><label>Personen</label><small>Ohne Auswahl: Dani, Caro und Lara</small><div class="chips" id="fchips" style="margin:4px 0 0"></div></div>
       <div><label for="rep">Wiederholung</label>
         <select id="rep"><option value="none">Keine</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></div>
       <div><label for="reminder">Erinnerung</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select><small class="empty">Die Benachrichtigung wird erst in der Android-App aktiviert.</small></div>
       <div><label for="note">Ort / Notiz (optional)</label><input id="note" maxlength="200"></div>
 
-      <div id="attachmentsPanel" style="display:none;border:1px solid var(--line);border-radius:10px;padding:10px">
+      <div id="attachmentsPanel" class="attachmentCard" style="display:none">
         <label for="attachmentFile">Anhänge (PDF, JPG, PNG, WEBP; max. 10 MB)</label>
         <input id="attachmentFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp">
         <button id="attachmentUpload" class="btn sec" type="button" style="margin-top:8px">Datei hochladen</button>
@@ -215,12 +311,12 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
 
 <section id="familyHome" class="familyPage" aria-label="Startseite">
  <div id="homeHero" class="homeHero" data-scene="sunset">
-  <div class="heroKicker">✦ UNSER FAMILIENKALENDER</div>
+  <div class="heroBrand">👨‍👩‍👧‍👦 Familienkalender <span aria-hidden="true">⚙</span></div>
   <h2 id="homeGreeting">Hallo zusammen 👋</h2>
   <p id="homeDate"></p>
   <div id="homeAvatars" class="homeAvatars" aria-label="Familienmitglieder"></div>
  </div>
- <div class="homeSectionTitle"><h2>Heute</h2><button id="homeAllEvents" type="button">Kalender öffnen ›</button></div>
+ <div class="homeSectionTitle"><h2>▣ Heute</h2><button id="homeAllEvents" type="button">Kalender öffnen ›</button></div>
  <div class="homeAgenda" id="homeAgenda"></div>
  <div class="homeQuick">
   <button type="button" class="homeTile" data-go="tasks"><span class="tileIcon">☑️</span><strong>Aufgaben</strong><small id="homeTasksCount">Offene Aufgaben</small></button>
@@ -228,12 +324,12 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
   <button type="button" class="homeTile" data-go="calendar"><span class="tileIcon">📅</span><strong>Kalender</strong><small>Alle Termine</small></button>
   <button type="button" class="homeTile" data-go="more"><span class="tileIcon">⚙️</span><strong>Einstellungen</strong><small>Design & Familie</small></button>
  </div>
- <div class="homeSectionTitle"><h2>Die nächsten Termine</h2><button id="homeUpcomingLink" type="button">Alle ansehen ›</button></div>
+ <div class="homeSectionTitle"><h2>▣ Die nächsten Termine</h2><button id="homeUpcomingLink" type="button">Alle ansehen ›</button></div>
  <div class="homeAgenda" id="homeUpcoming"></div>
  <div class="homeAppearance"><label for="homeScene">Startseiten-Hintergrund</label><select id="homeScene"><option value="sunset">Abendhimmel</option><option value="ocean">Meer</option><option value="forest">Natur</option><option value="plain">Schlicht</option></select></div>
 </section>
 <section id="familyTasks" class="familyPage panel" aria-label="Aufgaben">
- <h2>Gemeinsame Aufgaben</h2>
+ <div class="sectionHead"><span>✓</span><div><h2>Aufgaben</h2><small>Gemeinsam organisieren</small></div></div>
  <form id="taskForm" class="familyForm">
   <input id="taskTitle" maxlength="160" placeholder="Neue Aufgabe" required>
   <select id="taskAssignee" aria-label="Zuständig"><option value="">Alle</option><option value="daniel">Dani</option><option value="caro">Caro</option><option value="lara">Lara</option><option value="mila">Mila</option></select>
@@ -243,7 +339,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
  <div id="taskList"></div>
 </section>
 <section id="familyShopping" class="familyPage panel" aria-label="Einkauf">
- <h2>Einkaufsliste</h2>
+ <div class="sectionHead"><span>🛒</span><div><h2>Einkaufsliste</h2><small>Alles für den nächsten Einkauf</small></div></div>
  <form id="shoppingForm" class="familyForm">
   <input id="shoppingTitle" maxlength="160" placeholder="Artikel" required>
   <input id="shoppingQuantity" maxlength="60" placeholder="Menge (optional)">
@@ -252,6 +348,8 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
  <div id="shoppingList"></div>
 </section>
 <section id="familyMore" class="familyPage panel" aria-label="Mehr">
+ <div class="sectionHead"><span>⚙</span><div><h2>Einstellungen</h2><small>Design, Familie und Kalender</small></div></div>
+ <div class="settingsGroupTitle">Familie &amp; Termine</div>
  <h2>Geburtstage &amp; Jahrestage</h2>
  <form id="anniversaryForm" class="familyForm">
   <input id="anniversaryTitle" maxlength="160" placeholder="Name / Anlass" required>
@@ -260,6 +358,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
   <button class="btn" type="submit">Hinzufügen</button>
  </form>
  <div id="anniversaryList"></div>
+ <div class="settingsGroupTitle">Design &amp; Darstellung</div>
  <h2 style="margin-top:22px">Darstellung</h2>
  <label for="familyTheme">Design</label>
  <select id="familyTheme"><option value="system">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>
@@ -787,5 +886,17 @@ $('attachmentUpload').onclick=async function(){
 
 locked('Bitte anmelden');familySwitch('home');setup();
 </script>
-<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js").catch(console.warn);</script></body>
+<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js").catch(console.warn);</script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ var add=document.getElementById('calendarQuickAdd');
+ if(add)add.addEventListener('click',function(){
+  if(typeof familySwitch==='function')familySwitch('calendar');
+  if(typeof openForm==='function')openForm();
+ });
+ var back=document.getElementById('formBack');
+ if(back)back.addEventListener('click',function(){if(typeof closeForm==='function')closeForm();});
+});
+</script>
+</body>
 </html>
