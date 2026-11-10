@@ -491,6 +491,52 @@ locked=function(message){
  originalFamilyLocked(message);
 };
 
+// Phase 2A: Bayerische Feiertage und amtliche Schulferien. Keine Supabase-Migration.
+var holidayVisibility={holidays:localStorage.getItem('famcal_holidays')!=='false',vacations:localStorage.getItem('famcal_vacations')!=='false'};
+var bavarianSchoolBreaks=[
+ ['2026-02-16','2026-02-20','Frühjahrsferien'],['2026-03-30','2026-04-10','Osterferien'],['2026-05-26','2026-06-05','Pfingstferien'],['2026-08-03','2026-09-14','Sommerferien'],['2026-11-02','2026-11-06','Allerheiligenferien'],['2026-12-24','2027-01-08','Weihnachtsferien'],
+ ['2027-02-08','2027-02-12','Frühjahrsferien'],['2027-03-22','2027-04-02','Osterferien'],['2027-05-18','2027-05-28','Pfingstferien'],['2027-08-02','2027-09-13','Sommerferien'],['2027-11-02','2027-11-05','Allerheiligenferien'],['2027-12-24','2028-01-07','Weihnachtsferien'],
+ ['2028-02-28','2028-03-03','Frühjahrsferien'],['2028-04-10','2028-04-21','Osterferien'],['2028-06-06','2028-06-16','Pfingstferien']
+];
+function holidayIso(y,m,d){return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+function easterSunday(y){
+ var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k+7)%7,m=Math.floor((a+11*h+22*l)/451),n=h+l-7*m+114;
+ return Date.UTC(y,Math.floor(n/31)-1,(n%31)+1);
+}
+function easterOffset(y,days){var d=new Date(easterSunday(y)+days*86400000);return d.toISOString().slice(0,10);}
+function publicHolidays(y){
+ var h=[['01-01','Neujahr'],['01-06','Heilige Drei Könige'],['05-01','Tag der Arbeit'],['08-15','Mariä Himmelfahrt (regional)'],['10-03','Tag der Deutschen Einheit'],['11-01','Allerheiligen'],['12-25','1. Weihnachtstag'],['12-26','2. Weihnachtstag']];
+ var out=h.map(function(x){return [y+'-'+x[0],x[1]];});
+ [[-2,'Karfreitag'],[1,'Ostermontag'],[39,'Christi Himmelfahrt'],[50,'Pfingstmontag'],[60,'Fronleichnam']].forEach(function(x){out.push([easterOffset(y,x[0]),x[1]]);});
+ // Augsburger Friedensfest (08.08.) ist ausschließlich in Augsburg gesetzlicher Feiertag und wird hier nicht geführt.
+ return out;
+}
+var originalHolidayEvs=evs;
+evs=function(k){
+ var result=originalHolidayEvs(k),extra=[];
+ function add(title,type){extra.push({id:'by-'+type+'-'+k+'-'+title,title:(type==='holiday'?'🇩🇪 ':'🏖️ ')+title,start:k,end:k,allDay:true,st:'',et:'',ms:FAM.slice(),rep:'none',note:'Bayern',calendarReadOnly:true,calendarType:type});}
+ if(holidayVisibility.holidays)publicHolidays(+k.slice(0,4)).forEach(function(x){if(x[0]===k)add(x[1],'holiday');});
+ if(holidayVisibility.vacations)bavarianSchoolBreaks.forEach(function(x){if(k>=x[0]&&k<=x[1])add(x[2],'vacation');});
+ return result.concat(extra);
+};
+var originalHolidayEvRow=evRow;
+evRow=function(e){
+ var row=originalHolidayEvRow(e);
+ if(e.calendarReadOnly){row.onclick=null;row.style.cursor='default';row.setAttribute('aria-label',e.title+' (Information, nicht bearbeitbar)');}
+ return row;
+};
+(function(){
+ var panel=$('familyMore');if(!panel)return;
+ var title=document.createElement('h2');title.textContent='Feiertage & Schulferien Bayern';title.style.marginTop='22px';panel.appendChild(title);
+ [['holidays','Gesetzliche Feiertage'],['vacations','Schulferien (2026–2028, soweit hinterlegt)']].forEach(function(pair){
+  var label=document.createElement('label');label.className='chk';label.style.margin='10px 0';
+  var input=document.createElement('input');input.type='checkbox';input.checked=holidayVisibility[pair[0]];
+  input.onchange=function(){holidayVisibility[pair[0]]=input.checked;localStorage.setItem('famcal_'+pair[0],String(input.checked));render();};
+  label.appendChild(input);label.appendChild(document.createTextNode(pair[1]));panel.appendChild(label);
+ });
+ var note=document.createElement('p');note.className='empty';note.textContent='Ferientermine laut Bayerischem Kultusministerium. Feiertage gelten für Bayern; Mariä Himmelfahrt nur in Gemeinden mit überwiegend katholischer Bevölkerung. Ferien außerhalb der hinterlegten Zeiträume werden nicht angezeigt.';panel.appendChild(note);
+})();
+
 locked('Bitte anmelden');setup();
 </script>
 <script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js").catch(console.warn);</script></body>
