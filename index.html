@@ -313,6 +313,9 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 :root:not([data-theme="light"]) .upcomingDate,:root:not([data-theme="light"]) #listPanel .lh{background:#38314e;color:#f0e4ff}
 :root:not([data-theme="light"]) .emptySymbol{background:#38314e;color:#d2b9ff}
 }
+</style><style>
+.wrap[data-page="calendar"][data-editing="true"] .top,.wrap[data-page="calendar"][data-editing="true"] .calendarPeople,.wrap[data-page="calendar"][data-editing="true"] #monthView,.wrap[data-page="calendar"][data-editing="true"] #dayPanel,.wrap[data-page="calendar"][data-editing="true"] #listPanel{display:none!important}
+.wrap[data-page="calendar"][data-editing="true"] #formPanel{display:block!important;margin-top:4px}
 </style></head>
 <body>
 <div class="wrap">
@@ -436,7 +439,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 var MEMBERS=[{id:"daniel",name:"Dani",color:"#3b82f6"},{id:"caro",name:"Caro",color:"#22a06b"},{id:"lara",name:"Lara",color:"#e0559a"},{id:"mila",name:"Mila 🐕",color:"#f59e0b",pet:true}];
 var FAM=MEMBERS.filter(function(m){return !m.pet}).map(function(m){return m.id});
 function isFam(ms){return ms.length===FAM.length&&FAM.every(function(f){return ms.indexOf(f)>=0});}
-var state={events:[]},store=null,status="",editId=null,fm={},mode="month",filter={};
+var state={events:[]},store=null,status="",editId=null,fm={},mode="month",filter={},formActive=false;
 var today=new Date(),view=new Date(today.getFullYear(),today.getMonth(),1);
 function $(i){return document.getElementById(i);}
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
@@ -524,8 +527,10 @@ function render(){
   chipSet($("chips"),function(id){filter[id]=(filter[id]===false);render();},function(id){return filter[id]!==false;});
   chipSet($("fchips"),function(id){fm[id]=!fm[id];render();},function(id){return !!fm[id];});
   $("vm").className=mode==="month"?"on":"";$("vl").className=mode==="list"?"on":"";
-  $("monthView").style.display=mode==="month"?"block":"none";
-  var formOpen=$("formPanel").style.display!=="none";
+  $("monthView").style.display=(!formActive&&mode==="month")?"block":"none";
+  $("formPanel").style.display=formActive?"block":"none";
+  document.querySelector(".wrap").dataset.editing=formActive?"true":"false";
+  var formOpen=formActive;
   $("dayPanel").style.display=(mode==="month"&&!formOpen)?"block":"none";
   $("listPanel").style.display=(mode==="list"&&!formOpen)?"block":"none";
   if(mode==="month")renderMonth();else renderAgenda();
@@ -589,10 +594,10 @@ function openForm(e){
   $("st").value=v.st;$("etm").value=v.et;$("rep").value=v.rep;$("reminder").value=v.reminder_minutes==null?"":String(v.reminder_minutes);$("note").value=v.note;
   fm={};(e&&!isFam(e.ms)?e.ms:[]).forEach(function(m){fm[m]=true;});
   $("del").style.display=e?"block":"none";$("err").textContent="";
-  syncAD();$("formPanel").style.display="block";$("dayPanel").style.display="none";$("listPanel").style.display="none";
-  render();$("formPanel").scrollIntoView({block:"start"});
+  formActive=true;
+  syncAD();render();window.scrollTo({top:0,behavior:"instant"});
 }
-function closeForm(){$("formPanel").style.display="none";editId=null;render();}
+function closeForm(){formActive=false;editId=null;render();window.scrollTo({top:0,behavior:"instant"});}
 function syncAD(){var a=$("ad").checked;$("st").disabled=a;$("etm").disabled=a;}
 function plus1(t){var p=t.split(":"),h=Math.min(+p[0]+1,23);return String(h).padStart(2,"0")+":"+(+p[0]+1>23?"59":p[1]);}
 $("ad").onchange=syncAD;
@@ -691,15 +696,21 @@ var familyChannels=[], familyRefreshTimer=null;
 function familyNotice(message){$('familyMessage').textContent=message||'';}
 function familySwitch(page){
  familyPage=page;
+ formActive=false;editId=null;
  document.querySelector('.wrap').dataset.page=page;
  var cal=page==='calendar';
  $('familyHome').classList.toggle('active',page==='home');
  if(page==='home')homeRender();
- ['monthView','dayPanel','listPanel','formPanel','chips'].forEach(function(id){$(id).style.display=cal?'':'none';});
+ $('formPanel').style.display='none';
+ $('monthView').style.display=cal&&mode==='month'?'block':'none';
+ $('dayPanel').style.display=cal&&mode==='month'?'block':'none';
+ $('listPanel').style.display=cal&&mode==='list'?'block':'none';
+ $('chips').style.display=cal?'':'none';
  document.querySelector('.top .seg').style.display=cal?'':'none';
  ['familyTasks','familyShopping','familyMore'].forEach(function(id){$(id).classList.toggle('active',id==='family'+page.charAt(0).toUpperCase()+page.slice(1));});
  document.querySelectorAll('#familyNav button').forEach(function(b){b.classList.toggle('active',b.dataset.page===page);});
  if(cal)render();
+ document.querySelector('.wrap').dataset.editing='false';
 }
 document.querySelectorAll('#familyNav button').forEach(function(b){b.onclick=function(){familySwitch(b.dataset.page);};});
 
