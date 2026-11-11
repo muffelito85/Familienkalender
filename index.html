@@ -344,7 +344,14 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 #taskForm #taskTime{width:100%;min-width:0;box-sizing:border-box}
 #taskCancelEdit[hidden]{display:none!important}
 .familyItem button[aria-label="Aufgabe bearbeiten"]{margin-left:auto}
-</style></head>
+</style><style>
+.anniversaryToggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border:1px solid var(--line);border-radius:15px;background:var(--card);color:var(--text);font-weight:750;text-align:left;cursor:pointer;margin:14px 0 8px}
+.anniversaryToggle #anniversaryToggleArrow{font-size:22px;line-height:1}
+#anniversaryList[hidden],#anniversaryCancelEdit[hidden]{display:none!important}
+.anniversaryDateLabel{align-self:center;font-size:13px;font-weight:650;flex:0 0 auto}
+#anniversaryList .familyItem button[aria-label="Eintrag bearbeiten"]{margin-left:auto}
+</style>
+</head>
 <body>
 <div class="wrap">
   <div class="top"><h1 id="calendarTopTitle">Kalender</h1>
@@ -443,10 +450,13 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
  <form id="anniversaryForm" class="familyForm">
   <input id="anniversaryTitle" maxlength="160" placeholder="Name / Anlass" required>
   <select id="anniversaryKind"><option value="birthday">Geburtstag</option><option value="anniversary">Jahrestag</option></select>
+  <label class="anniversaryDateLabel" for="anniversaryDate">Datum</label>
   <input id="anniversaryDate" type="date" required>
-  <button class="btn" type="submit">Hinzufügen</button>
+  <button class="btn" id="anniversarySubmit" type="submit">Hinzufügen</button>
+  <button class="btn" id="anniversaryCancelEdit" type="button" hidden>Abbrechen</button>
  </form>
- <div id="anniversaryList"></div>
+ <button type="button" id="anniversaryToggle" class="anniversaryToggle" aria-expanded="false" aria-controls="anniversaryList"><span id="anniversaryToggleText">Einträge anzeigen</span><span id="anniversaryToggleArrow">⌄</span></button>
+ <div id="anniversaryList" hidden></div>
  <div class="settingsGroupTitle">Design &amp; Darstellung</div>
  <h2 style="margin-top:22px">Darstellung</h2>
  <label for="familyTheme">Design</label>
@@ -816,10 +826,27 @@ document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){
 function familyElement(tag,content,cls){
  var e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(cls)e.className=cls;return e;
 }
+var anniversaryExpanded=false, anniversaryEditingId=null;
+function anniversaryToggleRefresh(){
+ var rows=familyData.anniversaries||[];
+ $('anniversaryToggleText').textContent='Geburtstage & Jahrestage ('+rows.length+') '+(anniversaryExpanded?'schließen':'anzeigen');
+ $('anniversaryToggleArrow').textContent=anniversaryExpanded?'⌃':'⌄';
+ $('anniversaryToggle').setAttribute('aria-expanded',String(anniversaryExpanded));
+ $('anniversaryList').hidden=!anniversaryExpanded;
+}
+$('anniversaryToggle').onclick=function(){anniversaryExpanded=!anniversaryExpanded;anniversaryToggleRefresh();};
+function anniversaryResetForm(){
+ anniversaryEditingId=null;$('anniversaryForm').reset();$('anniversarySubmit').textContent='Hinzufügen';$('anniversaryCancelEdit').hidden=true;
+}
+$('anniversaryCancelEdit').onclick=anniversaryResetForm;
 function familyDraw(table){
  var root=$(table==='tasks'?'taskList':table==='shopping_items'?'shoppingList':'anniversaryList');
  root.replaceChildren();
  var rows=(familyData[table]||[]).filter(function(item){return table!=='tasks'||taskScope==='all'||(item.visibility||'family')===taskScope;});
+ if(table==='anniversaries'){
+  rows.sort(function(a,b){return (a.event_date||'').slice(5).localeCompare((b.event_date||'').slice(5));});
+  anniversaryToggleRefresh();
+ }
  if(!rows.length){root.appendChild(familyElement('p','Noch keine Einträge.','empty'));return;}
  rows.forEach(function(item){
   var row=familyElement('div',undefined,'familyItem'+(item.completed?' done':''));
@@ -838,6 +865,20 @@ function familyDraw(table){
    var edit=familyElement('button','✎');edit.type='button';edit.setAttribute('aria-label','Aufgabe bearbeiten');
    edit.onclick=function(){taskEditingId=item.id;$('taskTitle').value=item.title||'';$('taskAssignee').value=item.assigned_to||'';$('taskDue').value=item.due_date||'';$('taskTime').value=item.due_time?String(item.due_time).slice(0,5):'';$('taskVisibility').value=item.visibility||'family';$('taskSubmit').textContent='Änderungen speichern';$('taskCancelEdit').hidden=false;$('taskForm').scrollIntoView({behavior:'smooth',block:'center'});$('taskTitle').focus();};
    row.appendChild(edit);
+  }
+  if(table==='anniversaries'){
+   var editAnn=familyElement('button','✎');editAnn.type='button';editAnn.setAttribute('aria-label','Eintrag bearbeiten');
+   editAnn.onclick=function(){
+    anniversaryEditingId=item.id;
+    $('anniversaryTitle').value=item.title||'';
+    $('anniversaryKind').value=item.kind||'birthday';
+    $('anniversaryDate').value=item.event_date||'';
+    $('anniversarySubmit').textContent='Änderungen speichern';
+    $('anniversaryCancelEdit').hidden=false;
+    $('anniversaryForm').scrollIntoView({behavior:'smooth',block:'center'});
+    $('anniversaryTitle').focus();
+   };
+   row.appendChild(editAnn);
   }
   var del=familyElement('button','✕');del.type='button';del.setAttribute('aria-label','Eintrag löschen');
   del.onclick=async function(){if(confirm('Eintrag wirklich löschen?'))await familyMutate(table,'delete',null,item.id);};
@@ -878,9 +919,11 @@ $('shoppingForm').onsubmit=function(e){
  e.preventDefault();var title=$('shoppingTitle').value.trim();if(!title)return;
  familyMutate('shopping_items','insert',{title:title,quantity:$('shoppingQuantity').value.trim()});$('shoppingTitle').value='';$('shoppingQuantity').value='';
 };
-$('anniversaryForm').onsubmit=function(e){
+$('anniversaryForm').onsubmit=async function(e){
  e.preventDefault();var title=$('anniversaryTitle').value.trim(),date=$('anniversaryDate').value;if(!title||!date)return;
- familyMutate('anniversaries','insert',{title:title,kind:$('anniversaryKind').value,event_date:date});$('anniversaryTitle').value='';
+ var id=anniversaryEditingId;
+ var ok=await familyMutate('anniversaries',id?'update':'insert',{title:title,kind:$('anniversaryKind').value,event_date:date},id);
+ if(ok)anniversaryResetForm();
 };
 function applyFamilyPrefs(p){
  var chosenTheme=p.theme==='dark'?'dark':'light';
