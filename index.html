@@ -332,6 +332,14 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 .homeHero::after{display:none!important}
 </style><style>/* V13: no stale authentication status on the Family Modern homepage */
 .wrap[data-page="home"] #status{display:none!important}
+</style><style>
+/* V14: Clearly distinguish task assignee from task visibility on mobile. */
+#taskForm .taskField{display:flex;flex:1 1 155px;flex-direction:column;gap:5px;font-size:13px;font-weight:700;color:var(--text);min-width:0}
+#taskForm .taskField select{flex:none;width:100%;min-width:0;font-weight:400}
+#taskForm #taskTitle{flex:1 1 100%;min-width:0}
+#taskForm #taskDue{flex:1 1 145px;min-width:0}
+#taskForm button[type="submit"]{flex:1 1 100%}
+@media(max-width:440px){#taskForm .taskField{flex:1 1 100%}}
 </style></head>
 <body>
 <div class="wrap">
@@ -405,9 +413,9 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
  <div class="sectionHead"><span>✓</span><div><h2>Aufgaben</h2><small>Gemeinsam organisieren</small></div></div>
  <form id="taskForm" class="familyForm">
   <input id="taskTitle" maxlength="160" placeholder="Neue Aufgabe" required>
-  <select id="taskAssignee" aria-label="Zuständig"><option value="">Alle</option><option value="daniel">Dani</option><option value="caro">Caro</option><option value="lara">Lara</option><option value="mila">Mila</option></select>
+  <label class="taskField">Zuständig<select id="taskAssignee" aria-label="Zuständig"><option value="">Alle</option><option value="daniel">Dani</option><option value="caro">Caro</option><option value="lara">Lara</option><option value="mila">Mila</option></select></label>
   <input id="taskDue" type="date" aria-label="Fällig am">
-  <select id="taskVisibility" aria-label="Sichtbarkeit"><option value="family">👥 Familie</option><option value="private">🔒 Privat</option></select>
+  <label class="taskField">Sichtbarkeit<select id="taskVisibility" aria-label="Sichtbarkeit"><option value="family">👥 Familie</option><option value="private">🔒 Privat</option></select></label>
   <button class="btn" type="submit">Hinzufügen</button>
  </form>
  <div class="visibilityFilters" id="taskFilters"><button type="button" data-scope="all" class="selected">Alle</button><button type="button" data-scope="family">Familie</button><button type="button" data-scope="private">🔒 Privat</button></div>
