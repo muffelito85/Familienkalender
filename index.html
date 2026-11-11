@@ -71,7 +71,7 @@ input:disabled{opacity:.4}
 #familyMessage{font-size:13px;min-height:20px}
 .visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#f4f5fc"><style>
+<link rel="manifest" href="manifest.webmanifest?v=10"><meta name="theme-color" content="#f4f5fc"><style>
 .day{position:relative;overflow:hidden}
 .day.vacation-day::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:4px;border-radius:3px;background:#e0559a;opacity:.65;pointer-events:none}
 .day.holiday-day::before{content:"";position:absolute;top:0;right:0;border-top:11px solid #d9622b;border-left:11px solid transparent;pointer-events:none}
@@ -325,6 +325,11 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 .wrap[data-page="calendar"][data-editing="true"] .top,.wrap[data-page="calendar"][data-editing="true"] .calendarPeople,.wrap[data-page="calendar"][data-editing="true"] #monthView,.wrap[data-page="calendar"][data-editing="true"] #dayPanel,.wrap[data-page="calendar"][data-editing="true"] #listPanel{display:none!important}
 .wrap[data-page="calendar"][data-editing="true"] #formPanel{display:block!important;margin-top:4px}
 .visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
+</style><style>
+/* Only show the purple calendar people bar on the calendar page. */
+.wrap:not([data-page="calendar"]) > .calendarPeople{display:none!important}
+/* Remove old decorative polygon from the image hero. */
+.homeHero::after{display:none!important}
 </style></head>
 <body>
 <div class="wrap">
@@ -981,7 +986,7 @@ $('attachmentUpload').onclick=async function(){
 
 locked('Bitte anmelden');familySwitch('home');setup();
 </script>
-<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js").catch(console.warn);</script>
+<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=10").catch(console.warn);</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  var add=document.getElementById('calendarQuickAdd');
