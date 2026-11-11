@@ -330,6 +330,8 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 .wrap:not([data-page="calendar"]) > .calendarPeople{display:none!important}
 /* Remove old decorative polygon from the image hero. */
 .homeHero::after{display:none!important}
+</style><style>/* V13: no stale authentication status on the Family Modern homepage */
+.wrap[data-page="home"] #status{display:none!important}
 </style></head>
 <body>
 <div class="wrap">
@@ -447,7 +449,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
  <button type="button" data-page="shopping"><span class="navIcon">🛒</span><span>Einkauf</span></button>
  <button type="button" data-page="more"><span class="navIcon">•••</span><span>Mehr</span></button>
 </nav>
-  <button id="logoutBtn" type="button">Abmelden</button><p class="empty" id="status" style="text-align:center"></p>
+  <button id="logoutBtn" type="button">Abmelden</button><p class="empty" id="status" style="text-align:center" aria-live="polite"></p>
 </div>
 <div id="authScreen"><div id="authCard"><h2>Familienkalender</h2><p>Mit deiner E-Mail anmelden. Neue Konten müssen anschließend für die Familie freigeschaltet werden.</p><input id="authEmail" type="email" placeholder="E-Mail" autocomplete="email"><input id="authPassword" type="password" placeholder="Passwort (mind. 6 Zeichen)" autocomplete="current-password"><button id="loginBtn">Anmelden</button><button id="registerBtn" style="background:#777">Konto erstellen</button><p id="authMessage" role="status"></p></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -679,7 +681,8 @@ async function enter(){
   if(!sessionUser){locked();return;}
   var m=await sb.from('family_members').select('family_id,role').eq('family_id',familyId).eq('user_id',sessionUser.id).maybeSingle();
   if(m.error||!m.data){locked('Konto noch nicht für die Familie freigeschaltet');authMessage('Angemeldet als '+sessionUser.email+'. Der Administrator muss deine Benutzer-ID in family_members freischalten: '+sessionUser.id);return;}
-  userRole=m.data.role||'child';$('authScreen').style.display='none';$('logoutBtn').style.display='inline-block';
+  status='';userRole=m.data.role||'child';$('authScreen').style.display='none';$('logoutBtn').style.display='inline-block';
+  if(familyPage==='home')homeRender();
   store={add:function(e){return write('add',null,e)},update:function(id,e){return write('update',id,e)},del:function(id){return write('delete',id,null)}};
   if(channel)await sb.removeChannel(channel);
   channel=sb.channel('family-events-'+familyId).on('postgres_changes',{event:'*',schema:'public',table:'events',filter:'family_id=eq.'+familyId},function(){refresh()}).subscribe();
@@ -741,7 +744,23 @@ document.querySelectorAll('#familyNav button').forEach(function(b){b.onclick=fun
 function homeRender(){
  var now=new Date(),k=iso(now);
  $('homeDate').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
- var hour=now.getHours();$('homeGreeting').textContent=(hour<11?'Guten Morgen':hour<18?'Hallo':'Guten Abend')+' 👋';
+ var hour=now.getHours();
+ var greeting=hour<11?'Guten Morgen':hour<18?'Hallo':'Guten Abend';
+ var firstName='';
+ if(sessionUser){
+  var knownNames={
+   'b0807984-7383-4a8b-9ae8-8d7a05375056':'Dani',
+   '51fa4afb-aa64-454e-aa0f-eab60b388b28':'Caro',
+   '9c4a8518-075f-48e1-a05e-55b3ded35ec0':'Lara'
+  };
+  firstName=knownNames[sessionUser.id]||'';
+  if(!firstName){
+   var meta=sessionUser.user_metadata||{};
+   var displayName=meta.first_name||meta.given_name||meta.full_name||meta.name||'';
+   firstName=String(displayName).trim().split(/\s+/)[0];
+  }
+ }
+ $('homeGreeting').textContent=greeting+(firstName?' '+firstName:'')+' 👋';
  var avatars=$('homeAvatars');avatars.replaceChildren();
  MEMBERS.forEach(function(m){
   var item=document.createElement('div');item.className='homeAvatar';
