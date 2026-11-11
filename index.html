@@ -71,7 +71,7 @@ input:disabled{opacity:.4}
 #familyMessage{font-size:13px;min-height:20px}
 .visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=10"><meta name="theme-color" content="#f4f5fc"><style>
+<link rel="manifest" href="manifest.webmanifest?v=17"><meta name="theme-color" content="#f4f5fc"><style>
 .day{position:relative;overflow:hidden}
 .day.vacation-day::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:4px;border-radius:3px;background:#e0559a;opacity:.65;pointer-events:none}
 .day.holiday-day::before{content:"";position:absolute;top:0;right:0;border-top:11px solid #d9622b;border-left:11px solid transparent;pointer-events:none}
@@ -457,6 +457,15 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
  </form>
  <button type="button" id="anniversaryToggle" class="anniversaryToggle" aria-expanded="false" aria-controls="anniversaryList"><span id="anniversaryToggleText">Einträge anzeigen</span><span id="anniversaryToggleArrow">⌄</span></button>
  <div id="anniversaryList" hidden></div>
+
+ <div class="settingsGroupTitle">Benachrichtigungen</div>
+ <div class="pushSettings" style="padding:14px;border:1px solid var(--line);border-radius:14px;margin:12px 0">
+  <p style="margin:0 0 8px">Push-Nachrichten auf diesem Android-Gerät</p>
+  <button id="pushRegister" class="btn" type="button">Benachrichtigungen aktivieren</button>
+  <button id="pushUnregister" class="btn" type="button" style="margin-top:8px;background:#666">Dieses Gerät abmelden</button>
+  <p id="pushStatus" role="status" aria-live="polite" style="font-size:13px;overflow-wrap:anywhere">Noch nicht eingerichtet.</p>
+  <small>Geräte-Registrierung. Der automatische Versand ist noch nicht aktiviert.</small>
+ </div>
  <div class="settingsGroupTitle">Design &amp; Darstellung</div>
  <h2 style="margin-top:22px">Darstellung</h2>
  <label for="familyTheme">Design</label>
@@ -1073,7 +1082,7 @@ $('attachmentUpload').onclick=async function(){
 
 locked('Bitte anmelden');familySwitch('home');setup();
 </script>
-<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=10").catch(console.warn);</script>
+<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=17").catch(console.warn);</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  var add=document.getElementById('calendarQuickAdd');
@@ -1217,6 +1226,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   syncSystemBars();
   new MutationObserver(syncSystemBars).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
+<script>
+/* Family Modern V17: user-triggered Web Push registration, no private keys in client. */
+(function(){
+ const PUBLIC_KEY='BDT8qUCyoPWo3TJ-J60q0gOM0LzsoTqkLr4AnICAaeu9EZgpvuFLCOxZhKsia0gRJsct4No1YVWn5-AXl7L-bXA';
+ const status=()=>document.getElementById('pushStatus');
+ function say(s){if(status())status().textContent=s;}
+ function keyBytes(base64){const padding='='.repeat((4-base64.length%4)%4);const raw=atob((base64+padding).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
+ async function context(){
+  if(!window.sb||!window.sessionUser)throw Error('Bitte zuerst anmelden.');
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))throw Error('Web Push wird auf diesem Gerät/Browser nicht unterstützt.');
+  return await navigator.serviceWorker.ready;
+ }
+ document.getElementById('pushRegister').addEventListener('click',async function(){
+  this.disabled=true;
+  try{
+   const reg=await context();
+   const permission=await Notification.requestPermission();
+   if(permission!=='granted')throw Error('Benachrichtigungen wurden nicht erlaubt.');
+   let sub=await reg.pushManager.getSubscription();
+   if(sub&&sub.options?.applicationServerKey){
+    const old=new Uint8Array(sub.options.applicationServerKey),now=keyBytes(PUBLIC_KEY);
+    if(old.length!==now.length||old.some((v,i)=>v!==now[i])){await sub.unsubscribe();sub=null;}
+   }
+   if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:keyBytes(PUBLIC_KEY)});
+   const obj=sub.toJSON();
+   if(!obj.keys?.p256dh||!obj.keys?.auth)throw Error('Push-Abonnement enthält keine Schlüssel.');
+   const {error}=await window.sb.from('push_subscriptions').upsert({user_id:window.sessionUser.id,endpoint:obj.endpoint,p256dh:obj.keys.p256dh,auth_key:obj.keys.auth},{onConflict:'endpoint'});
+   if(error)throw error;
+   say('Dieses Gerät ist registriert. Testversand folgt im nächsten Schritt.');
+  }catch(e){say('Registrierung fehlgeschlagen: '+e.message);}finally{this.disabled=false;}
+ });
+ document.getElementById('pushUnregister').addEventListener('click',async function(){
+  this.disabled=true;
+  try{
+   const reg=await context(),sub=await reg.pushManager.getSubscription();
+   if(sub){const {error}=await window.sb.from('push_subscriptions').delete().eq('endpoint',sub.endpoint).eq('user_id',window.sessionUser.id);if(error)throw error;await sub.unsubscribe();}
+   say('Dieses Gerät ist abgemeldet.');
+  }catch(e){say('Abmeldung fehlgeschlagen: '+e.message);}finally{this.disabled=false;}
+ });
 })();
 </script>
 </body>
