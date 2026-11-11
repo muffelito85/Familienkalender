@@ -340,6 +340,10 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 #taskForm #taskDue{flex:1 1 145px;min-width:0}
 #taskForm button[type="submit"]{flex:1 1 100%}
 @media(max-width:440px){#taskForm .taskField{flex:1 1 100%}}
+</style><style>
+#taskForm #taskTime{width:100%;min-width:0;box-sizing:border-box}
+#taskCancelEdit[hidden]{display:none!important}
+.familyItem button[aria-label="Aufgabe bearbeiten"]{margin-left:auto}
 </style></head>
 <body>
 <div class="wrap">
@@ -415,8 +419,10 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
   <input id="taskTitle" maxlength="160" placeholder="Neue Aufgabe" required>
   <label class="taskField">Zuständig<select id="taskAssignee" aria-label="Zuständig"><option value="">Alle</option><option value="daniel">Dani</option><option value="caro">Caro</option><option value="lara">Lara</option><option value="mila">Mila</option></select></label>
   <input id="taskDue" type="date" aria-label="Fällig am">
+  <label class="taskField">Uhrzeit (optional)<input id="taskTime" type="time" aria-label="Uhrzeit optional"></label>
   <label class="taskField">Sichtbarkeit<select id="taskVisibility" aria-label="Sichtbarkeit"><option value="family">👥 Familie</option><option value="private">🔒 Privat</option></select></label>
-  <button class="btn" type="submit">Hinzufügen</button>
+  <button class="btn" id="taskSubmit" type="submit">Hinzufügen</button>
+  <button class="btn" id="taskCancelEdit" type="button" hidden>Abbrechen</button>
  </form>
  <div class="visibilityFilters" id="taskFilters"><button type="button" data-scope="all" class="selected">Alle</button><button type="button" data-scope="family">Familie</button><button type="button" data-scope="private">🔒 Privat</button></div>
  <div id="taskList"></div>
@@ -824,10 +830,15 @@ function familyDraw(table){
    row.appendChild(check);
   }
   var detail=item.title;
-  if(table==='tasks')detail+=(item.visibility==='private'?'🔒 ':'')+(item.assigned_to?' · '+({daniel:'Dani',caro:'Caro',lara:'Lara',mila:'Mila'}[item.assigned_to]||item.assigned_to):'')+(item.due_date?' · '+item.due_date:'');
+  if(table==='tasks')detail+=(item.visibility==='private'?'🔒 ':'')+(item.assigned_to?' · '+({daniel:'Dani',caro:'Caro',lara:'Lara',mila:'Mila'}[item.assigned_to]||item.assigned_to):'')+(item.due_date?' · '+item.due_date:'')+(item.due_time?' · '+String(item.due_time).slice(0,5)+' Uhr':'');
   if(table==='shopping_items'&&item.quantity)detail+=' · '+item.quantity;
   if(table==='anniversaries')detail+=' · '+(item.kind==='birthday'?'Geburtstag':'Jahrestag')+' · '+item.event_date.slice(8,10)+'.'+item.event_date.slice(5,7)+'.';
   row.appendChild(familyElement('span',detail));
+  if(table==='tasks'){
+   var edit=familyElement('button','✎');edit.type='button';edit.setAttribute('aria-label','Aufgabe bearbeiten');
+   edit.onclick=function(){taskEditingId=item.id;$('taskTitle').value=item.title||'';$('taskAssignee').value=item.assigned_to||'';$('taskDue').value=item.due_date||'';$('taskTime').value=item.due_time?String(item.due_time).slice(0,5):'';$('taskVisibility').value=item.visibility||'family';$('taskSubmit').textContent='Änderungen speichern';$('taskCancelEdit').hidden=false;$('taskForm').scrollIntoView({behavior:'smooth',block:'center'});$('taskTitle').focus();};
+   row.appendChild(edit);
+  }
   var del=familyElement('button','✕');del.type='button';del.setAttribute('aria-label','Eintrag löschen');
   del.onclick=async function(){if(confirm('Eintrag wirklich löschen?'))await familyMutate(table,'delete',null,item.id);};
   row.appendChild(del);root.appendChild(row);
@@ -850,12 +861,18 @@ async function familyMutate(table,action,data,id){
    sb.from(table).delete().eq('id',id).eq('family_id',familyId);
   var r=await q.select('id');if(r.error)throw r.error;
   if(action!=='insert'&&(!r.data||!r.data.length))throw new Error('Eintrag nicht gefunden oder keine Berechtigung.');
-  familyNotice('Gespeichert');await familyLoad();
- }catch(e){familyNotice('Fehler: '+msg(e));}
+  familyNotice('Gespeichert');await familyLoad();return true;
+ }catch(e){familyNotice('Fehler: '+msg(e));return false;}
 }
-$('taskForm').onsubmit=function(e){
+var taskEditingId=null;
+function taskResetForm(){taskEditingId=null;$('taskForm').reset();$('taskSubmit').textContent='Hinzufügen';$('taskCancelEdit').hidden=true;}
+$('taskCancelEdit').onclick=taskResetForm;
+$('taskForm').onsubmit=async function(e){
  e.preventDefault();var title=$('taskTitle').value.trim();if(!title)return;
- familyMutate('tasks','insert',{title:title,assigned_to:$('taskAssignee').value||null,due_date:$('taskDue').value||null,visibility:$('taskVisibility').value}).then(function(){});$('taskTitle').value='';$('taskVisibility').value='family';
+ var payload={title:title,assigned_to:$('taskAssignee').value||null,due_date:$('taskDue').value||null,due_time:$('taskTime').value||null,visibility:$('taskVisibility').value};
+ var id=taskEditingId;
+ var ok=await familyMutate('tasks',id?'update':'insert',payload,id);
+ if(ok)taskResetForm();
 };
 $('shoppingForm').onsubmit=function(e){
  e.preventDefault();var title=$('shoppingTitle').value.trim();if(!title)return;
