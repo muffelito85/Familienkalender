@@ -71,7 +71,7 @@ input:disabled{opacity:.4}
 #familyMessage{font-size:13px;min-height:20px}
 .visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#d9622b"><style>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#f4f5fc"><style>
 .day{position:relative;overflow:hidden}
 .day.vacation-day::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:4px;border-radius:3px;background:#e0559a;opacity:.65;pointer-events:none}
 .day.holiday-day::before{content:"";position:absolute;top:0;right:0;border-top:11px solid #d9622b;border-left:11px solid transparent;pointer-events:none}
@@ -1112,6 +1112,19 @@ function init(){
  if(who()){activeUser=who();load()}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<script>
+/* Family Modern: Android status bar follows the selected app theme. */
+(function(){
+  const meta=document.querySelector('meta[name="theme-color"]');
+  function syncSystemBars(){
+    if(!meta)return;
+    const dark=document.documentElement.getAttribute('data-theme')==='dark';
+    meta.setAttribute('content',dark?'#171725':'#f4f5fc');
+  }
+  syncSystemBars();
+  new MutationObserver(syncSystemBars).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
 </body>
