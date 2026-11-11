@@ -993,5 +993,126 @@ document.addEventListener('DOMContentLoaded',function(){
  if(back)back.addEventListener('click',function(){if(typeof closeForm==='function')closeForm();});
 });
 </script>
+<style id="family-media-v8-style">
+/* Family Modern V8 – image personalization */
+.mediaPanel{margin:16px 0;padding:17px;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.mediaPanel h2{font-size:18px;margin:0 0 7px}.mediaPanel p{font-size:13px;color:var(--muted)}
+.mediaField{display:flex!important;flex-direction:column;gap:7px;margin:13px 0!important;font-size:13px;font-weight:650}
+.mediaField input,.mediaField select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
+#mediaStatus{min-height:19px;font-size:13px;color:var(--muted)}
+.homeHero{background-repeat:no-repeat}.homeAvatar .portrait{background-size:cover;background-position:center}
+</style>
+<script id="family-media-v8">
+(function(){
+'use strict';
+const PERSON={daniel:'b0807984-7383-4a8b-9ae8-8d7a05375056',caro:'51fa4afb-aa64-454e-aa0f-eab60b388b28',lara:'9c4a8518-075f-48e1-a05e-55b3ded35ec0',mila:'mila'};
+const BUCKET='family-media';
+let visual={},activeUser=null,revision=0,loading=false;
+const who=()=>typeof sessionUser!=='undefined'&&sessionUser?sessionUser.id:null;
+const canEdit=subject=>!!who()&&(subject===who()||(subject==='mila'&&['admin','adult'].includes(userRole)));
+const notice=message=>{const e=document.getElementById('mediaStatus');if(e)e.textContent=message||''};
+async function signed(path){if(!path)return null;const r=await sb.storage.from(BUCKET).createSignedUrl(path,3600);return r.error?null:r.data.signedUrl;}
+async function paint(){
+ const token=++revision,uid=who();if(!uid||!sb)return;
+ const avatars=document.querySelectorAll('#homeAvatars .homeAvatar .portrait');
+ for(const [i,name] of ['daniel','caro','lara','mila'].entries()){
+  const el=avatars[i];if(!el)continue;
+  el.style.backgroundImage='';el.textContent=name==='mila'?'🐾':name==='daniel'?'D':name.charAt(0).toUpperCase();
+  const path=visual[PERSON[name]]?.avatar_path;if(!path)continue;
+  const link=await signed(path);if(token!==revision||uid!==who())return;
+  if(link){el.style.backgroundImage='url("'+link+'")';el.textContent='';}
+ }
+ const hero=document.getElementById('homeHero');if(!hero)return;
+ const mine=visual[uid]||{},scene=mine.scene||'sunset';
+ hero.dataset.scene=scene==='photo'?'plain':scene;
+ hero.style.backgroundImage='';hero.style.backgroundSize='';hero.style.backgroundPosition='';
+ const selector=document.getElementById('homeScene');if(selector&&selector.querySelector('option[value="photo"]'))selector.value=scene;
+ if(scene==='photo'&&mine.background_path){
+  const link=await signed(mine.background_path);if(token!==revision||uid!==who())return;
+  if(link){hero.style.backgroundImage='linear-gradient(0deg,rgba(16,20,38,.53),rgba(16,20,38,.20)),url("'+link+'")';hero.style.backgroundSize='cover';hero.style.backgroundPosition='center';}
+ }
+}
+async function load(){
+ if(!sb||!who()||loading)return;
+ const uid=who();loading=true;const token=++revision;
+ try{
+  const r=await sb.from('family_visuals').select('subject,avatar_path,background_path,scene').eq('family_id',familyId);
+  if(uid!==who()||token!==revision)return;
+  if(r.error){notice('Bildverwaltung noch nicht bereit: '+r.error.message);return;}
+  visual=Object.fromEntries((r.data||[]).map(x=>[x.subject,x]));controls();await paint();
+ }finally{loading=false;}
+}
+async function persist(subject,change){
+ if(!canEdit(subject))throw Error('Keine Berechtigung.');
+ const old=visual[subject]||{};
+ const r=await sb.from('family_visuals').upsert({family_id:familyId,subject,avatar_path:old.avatar_path||null,background_path:old.background_path||null,scene:old.scene||'sunset',...change},{onConflict:'family_id,subject'});
+ if(r.error)throw Error(r.error.message);
+ await load();
+}
+async function makeJpeg(file,max){
+ if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error('Nur JPG, PNG oder WebP.');
+ if(file.size>12*1024*1024)throw Error('Originalbild darf maximal 12 MB groß sein.');
+ const img=await createImageBitmap(file),scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');
+ c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
+ c.getContext('2d').drawImage(img,0,0,c.width,c.height);img.close();
+ return await new Promise((resolve,reject)=>c.toBlob(blob=>blob?resolve(blob):reject(Error('Bildverarbeitung fehlgeschlagen.')),'image/jpeg',.84));
+}
+async function upload(subject,kind,file){
+ if(!canEdit(subject))throw Error('Keine Berechtigung.');
+ notice('Bild wird verarbeitet …');const blob=await makeJpeg(file,kind==='avatar'?640:1600);
+ const path=familyId+'/'+subject+'/'+(kind==='avatar'?'avatar.jpg':'background.jpg');
+ notice('Bild wird hochgeladen …');
+ const result=await sb.storage.from(BUCKET).upload(path,blob,{upsert:true,contentType:'image/jpeg',cacheControl:'60'});
+ if(result.error)throw Error(result.error.message);
+ await persist(subject,{[kind==='avatar'?'avatar_path':'background_path']:path,...(kind==='background'?{scene:'photo'}:{})});
+ notice('Bild gespeichert.');
+}
+function controls(){
+ const area=document.getElementById('mediaControls');if(!area)return;area.replaceChildren();
+ const uid=who();if(!uid)return;
+ function addUpload(label,subject,kind){
+  const wrap=document.createElement('label');wrap.className='mediaField';
+  const text=document.createElement('span');text.textContent=label;
+  const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';
+  input.addEventListener('change',async()=>{const f=input.files?.[0];if(!f)return;input.disabled=true;try{await upload(subject,kind,f)}catch(e){notice('Fehler: '+e.message)}finally{input.value='';input.disabled=false}});
+  wrap.append(text,input);area.appendChild(wrap);
+ }
+ addUpload('Mein Profilbild',uid,'avatar');
+ if(['admin','adult'].includes(userRole))addUpload('Milas Profilbild', 'mila','avatar');
+ addUpload('Mein Hintergrundfoto',uid,'background');
+ const wrap=document.createElement('label');wrap.className='mediaField';
+ const label=document.createElement('span');label.textContent='Mein Startseiten-Hintergrund';
+ const select=document.createElement('select');
+ for(const [id,text] of [['sunset','Abendhimmel'],['ocean','Meer'],['forest','Natur'],['plain','Schlicht'],['photo','Eigenes Foto']]){
+  const option=document.createElement('option');option.value=id;option.textContent=text;select.appendChild(option);
+ }
+ select.value=visual[uid]?.scene||'sunset';
+ select.onchange=async()=>{const value=select.value;select.disabled=true;try{
+  if(value==='photo'&&!visual[uid]?.background_path)throw Error('Bitte zuerst ein Foto hochladen.');
+  await persist(uid,{scene:value});notice('Hintergrund gespeichert.');
+ }catch(e){notice('Fehler: '+e.message);select.value=visual[uid]?.scene||'sunset'}finally{select.disabled=false}};
+ wrap.append(label,select);area.appendChild(wrap);
+}
+function init(){
+ const more=document.getElementById('familyMore');if(!more)return;
+ const panel=document.createElement('section');panel.className='mediaPanel';panel.innerHTML='<h2>Profilbilder &amp; Hintergründe</h2><p>Dein Bild und dein Hintergrund sind persönlich. Milas Bild können Dani und Caro ändern.</p><div id="mediaControls"></div><p id="mediaStatus" role="status"></p>';
+ const anchor=[...more.querySelectorAll('.settingsGroupTitle')].find(e=>e.textContent.includes('Design'));
+ if(anchor)anchor.after(panel);else more.appendChild(panel);
+ const oldHome=homeRender;
+ homeRender=function(){oldHome();if(who())paint()};
+ const homeSelect=document.getElementById('homeScene');
+ if(homeSelect){const option=document.createElement('option');option.value='photo';option.textContent='Eigenes Foto';homeSelect.appendChild(option);
+  homeSelect.onchange=async()=>{if(!who())return;const v=homeSelect.value;try{
+   if(v==='photo'&&!visual[who()]?.background_path)throw Error('Bitte zuerst ein Foto hochladen.');
+   await persist(who(),{scene:v});notice('Hintergrund gespeichert.');
+  }catch(e){notice('Fehler: '+e.message);homeSelect.value=visual[who()]?.scene||'sunset'}};
+ }
+ setInterval(()=>{const uid=who();if(uid!==activeUser){activeUser=uid;revision++;visual={};controls();if(uid)load();else{const hero=document.getElementById('homeHero');if(hero)hero.style.backgroundImage='';document.querySelectorAll('#homeAvatars .portrait').forEach(e=>e.style.backgroundImage='')}}},1000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&who())load()});
+ if(who()){activeUser=who();load()}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body>
 </html>
