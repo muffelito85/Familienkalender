@@ -49,9 +49,11 @@ input:disabled{opacity:.4}
 .btn.sec{background:var(--bg);color:var(--text);border:1px solid var(--line)}
 .btn.del{background:transparent;color:#d33;border:1px solid var(--line)}
 .err{color:#d33;font-size:14px}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
 <style>
 #authScreen{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}#authCard{background:var(--card);padding:24px;border:1px solid var(--line);border-radius:18px;width:min(100%,400px)}#authCard input{width:100%;margin:6px 0 12px;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)}#authCard button,#logoutBtn{padding:11px;border:0;border-radius:8px;background:var(--accent);color:white;cursor:pointer}#authCard button{width:100%;margin:4px 0}#authMessage{white-space:pre-wrap;font-size:13px;color:var(--muted)}#logoutBtn{display:none;font-size:12px;padding:7px 10px;margin-left:8px}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
 
 <style>
@@ -67,12 +69,14 @@ input:disabled{opacity:.4}
 .familyForm input{flex:2;min-width:140px}.familyForm select{flex:1;min-width:110px}
 .familyForm button{flex:0 0 auto}
 #familyMessage{font-size:13px;min-height:20px}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#d9622b"><style>
 .day{position:relative;overflow:hidden}
 .day.vacation-day::after{content:"";position:absolute;left:7px;right:7px;bottom:3px;height:4px;border-radius:3px;background:#e0559a;opacity:.65;pointer-events:none}
 .day.holiday-day::before{content:"";position:absolute;top:0;right:0;border-top:11px solid #d9622b;border-left:11px solid transparent;pointer-events:none}
 .day .dots{margin-bottom:5px}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style><style>
 /* Family Modern v1: additive presentation layer */
 .wrap[data-page="home"] .top,.wrap[data-page="home"] > #chips,.wrap[data-page="home"] #monthView,.wrap[data-page="home"] #dayPanel{display:none!important}
@@ -114,6 +118,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.
 .homeAppearance{margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .homeAppearance label{font-size:13px;color:var(--muted)}.homeAppearance select{width:auto;flex:1;min-width:140px;background:var(--card);font-size:13px}
 @media(max-width:370px){.homeAvatars{gap:6px}.homeAvatar .portrait{width:51px;height:51px}.homeHero{padding:18px 14px}}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style><style>
 /* Family Modern V2: shared design system, preserving calendar and Supabase logic */
 :root{--accent:#7544cf;--bg:#f5f5fd;--card:#fff;--line:#e5e5f2;--text:#22223e;--muted:#70758e}
@@ -166,6 +171,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#eee8ff 0%,var(--bg) 380px);}
 :root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select{background:#302f45;border-color:#44415e}
 @media(min-width:620px){.day{min-height:68px}.homeHero{min-height:265px}}
 @media(max-width:380px){.top h1{font-size:17px}.top{padding:12px}.day{min-height:44px;font-size:13px}.wrap{padding-left:10px;padding-right:10px}}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style><style>
 /* Family Modern V3 — unified visual system for all existing functional views */
 :root{--accent:#7541d6;--bg:#f4f5fc;--card:#fff;--text:#202441;--muted:#68718d;--line:#e2e5f3}
@@ -260,6 +266,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 :root[data-theme="dark"] .familyForm,:root[data-theme="dark"] .attachmentCard{background:#2b2a42}
 :root[data-theme="dark"] #formPanel input:not([type=checkbox]),:root[data-theme="dark"] #formPanel select{background:#302f45;color:var(--text);border-color:#44415e}
 @media(max-width:390px){.wrap{padding-left:9px;padding-right:9px}.day{min-height:43px}.homeAvatar .portrait{width:53px;height:53px}.homeHero{padding:17px 14px}.top h1{font-size:19px}}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style><style>
 /* Family Modern V4: consistent explicit and system dark themes. */
 :root{color-scheme:light}
@@ -313,9 +320,11 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 :root:not([data-theme="light"]) .upcomingDate,:root:not([data-theme="light"]) #listPanel .lh{background:#38314e;color:#f0e4ff}
 :root:not([data-theme="light"]) .emptySymbol{background:#38314e;color:#d2b9ff}
 }
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style><style>
 .wrap[data-page="calendar"][data-editing="true"] .top,.wrap[data-page="calendar"][data-editing="true"] .calendarPeople,.wrap[data-page="calendar"][data-editing="true"] #monthView,.wrap[data-page="calendar"][data-editing="true"] #dayPanel,.wrap[data-page="calendar"][data-editing="true"] #listPanel{display:none!important}
 .wrap[data-page="calendar"][data-editing="true"] #formPanel{display:block!important;margin-top:4px}
+.visibilityFilters{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}.visibilityFilters button{border:1px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card);color:var(--text);font-size:13px}.visibilityFilters button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style></head>
 <body>
 <div class="wrap">
@@ -345,6 +354,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
       <div class="chk"><input id="ad" type="checkbox"><label for="ad" style="margin:0;font-size:15px;color:var(--text)">Ganztägig</label></div>
       <div class="row"><div><label for="sd">Beginn</label><input id="sd" type="date"></div><div><label for="st">Uhrzeit</label><input id="st" type="time"></div></div>
       <div class="row"><div><label for="ed">Ende</label><input id="ed" type="date"></div><div><label for="etm">Uhrzeit</label><input id="etm" type="time"></div></div>
+      <div><label for="eventVisibility">Sichtbarkeit</label><select id="eventVisibility"><option value="family">👥 Familie – gemeinsam</option><option value="private">🔒 Privat – nur ich</option></select></div>
       <div class="peopleField"><label>Personen</label><small>Ohne Auswahl: Dani, Caro und Lara</small><div class="chips" id="fchips" style="margin:4px 0 0"></div></div>
       <div><label for="rep">Wiederholung</label>
         <select id="rep"><option value="none">Keine</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></div>
@@ -390,8 +400,10 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
   <input id="taskTitle" maxlength="160" placeholder="Neue Aufgabe" required>
   <select id="taskAssignee" aria-label="Zuständig"><option value="">Alle</option><option value="daniel">Dani</option><option value="caro">Caro</option><option value="lara">Lara</option><option value="mila">Mila</option></select>
   <input id="taskDue" type="date" aria-label="Fällig am">
+  <select id="taskVisibility" aria-label="Sichtbarkeit"><option value="family">👥 Familie</option><option value="private">🔒 Privat</option></select>
   <button class="btn" type="submit">Hinzufügen</button>
  </form>
+ <div class="visibilityFilters" id="taskFilters"><button type="button" data-scope="all" class="selected">Alle</button><button type="button" data-scope="family">Familie</button><button type="button" data-scope="private">🔒 Privat</button></div>
  <div id="taskList"></div>
 </section>
 <section id="familyShopping" class="familyPage panel" aria-label="Einkauf">
@@ -439,6 +451,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 var MEMBERS=[{id:"daniel",name:"Dani",color:"#3b82f6"},{id:"caro",name:"Caro",color:"#22a06b"},{id:"lara",name:"Lara",color:"#e0559a"},{id:"mila",name:"Mila 🐕",color:"#f59e0b",pet:true}];
 var FAM=MEMBERS.filter(function(m){return !m.pet}).map(function(m){return m.id});
 function isFam(ms){return ms.length===FAM.length&&FAM.every(function(f){return ms.indexOf(f)>=0});}
+var userRole="child",eventScope="all",taskScope="all";
 var state={events:[]},store=null,status="",editId=null,fm={},mode="month",filter={},formActive=false;
 var today=new Date(),view=new Date(today.getFullYear(),today.getMonth(),1);
 function $(i){return document.getElementById(i);}
@@ -448,7 +461,7 @@ function fromDn(n){var d=new Date(n*86400000);return d.getUTCFullYear()+"-"+Stri
 function mem(id){return MEMBERS.find(function(m){return m.id===id})||{name:"?",color:"#999"};}
 var sel=iso(today);
 function norm(e){
-  var o={id:e.id,title:e.title||"",start:e.start||e.date||iso(today),end:e.end||e.start||e.date||iso(today),allDay:!!e.allDay,st:e.st!==undefined?e.st:(e.time||""),et:e.et||"",ms:e.ms||(e.m?[e.m]:[]),rep:e.rep||"none",reminder_minutes:e.reminder_minutes??null,note:e.note||""};
+  var o={id:e.id,title:e.title||"",start:e.start||e.date||iso(today),end:e.end||e.start||e.date||iso(today),allDay:!!e.allDay,st:e.st!==undefined?e.st:(e.time||""),et:e.et||"",ms:e.ms||(e.m?[e.m]:[]),rep:e.rep||"none",reminder_minutes:e.reminder_minutes??null,note:e.note||"",visibility:e.visibility||"family",created_by:e.created_by||null};
   if(!o.ms.length)o.ms=FAM.slice();
   return o;
 }
@@ -465,7 +478,9 @@ function occ(e,k){
   }
   return false;
 }
-function shown(e){return e.ms.some(function(m){return filter[m]!==false});}
+function shown(e){return (eventScope==="all"||e.visibility===eventScope)&&e.ms.some(function(m){return filter[m]!==false});}
+function canEditEvent(e){return userRole!=="child"||e.created_by===sessionUser?.id;}
+function canDeleteEvent(e){return userRole!=="child"||(e.visibility==="private"&&e.created_by===sessionUser?.id);}
 function evs(k){
   var events=state.events.map(norm).filter(function(e){return shown(e)&&occ(e,k)});
   // Anniversaries are stored separately, and recur on the same month/day each year.
@@ -498,7 +513,7 @@ function evRow(e){
   var t=document.createElement("div");t.className="t";
   var b=document.createElement("b");b.textContent=e.title;
   var sm=document.createElement("small");
-  var parts=[timeLabel(e),isFam(e.ms)?"Familie":e.ms.map(function(m){return mem(m).name}).join(", ")];
+  var parts=[timeLabel(e),e.visibility==="private"?"🔒 Privat":(isFam(e.ms)?"Familie":e.ms.map(function(m){return mem(m).name}).join(", "))];
   if(e.rep!=="none")parts.push("↻ "+REP[e.rep]);
   if(e.reminder_minutes!=null)parts.push("🔔 "+({15:"15 Min.",60:"1 Std.",1440:"1 Tag",10080:"1 Woche"}[e.reminder_minutes]||e.reminder_minutes+" Min.")+" vorher (vorgemerkt)");
   if(e.note)parts.push(e.note);
@@ -510,7 +525,8 @@ function evRow(e){
     r.title='Geburtstage und Jahrestage unter Mehr verwalten';
     r.style.cursor='default';
   }else{
-    r.onclick=function(){openForm(e);};
+    if(canEditEvent(e))r.onclick=function(){openForm(e);};
+    else {r.title="Nur ansehen – keine Bearbeitungsrechte";r.style.cursor="default";}
   }
   return r;
 }
@@ -587,13 +603,15 @@ function renderAgenda(){
 }
 $('agendaMore').onclick=function(){agendaDays=Math.min(60,agendaDays+14);renderAgenda();};
 function openForm(e){
+  if(e&&!canEditEvent(e))return;
   editId=e?e.id:null;
+  $("eventVisibility").value=e?.visibility||"family";
   $("formTitle").textContent=e?"Termin bearbeiten":"Neuer Termin";
   var v=e||{title:"",start:sel,end:sel,allDay:false,st:"",et:"",ms:[],rep:"none",note:""};
   $("et").value=v.title;$("ad").checked=v.allDay;$("sd").value=v.start;$("ed").value=v.end;
   $("st").value=v.st;$("etm").value=v.et;$("rep").value=v.rep;$("reminder").value=v.reminder_minutes==null?"":String(v.reminder_minutes);$("note").value=v.note;
   fm={};(e&&!isFam(e.ms)?e.ms:[]).forEach(function(m){fm[m]=true;});
-  $("del").style.display=e?"block":"none";$("err").textContent="";
+  $("del").style.display=e&&canDeleteEvent(e)?"block":"none";$("err").textContent="";
   formActive=true;
   syncAD();render();window.scrollTo({top:0,behavior:"instant"});
 }
@@ -613,7 +631,7 @@ $("save").onclick=function(){
   if(!ad&&ed===sd&&st&&et&&et<st){$("err").textContent="Die Endzeit liegt vor der Startzeit.";return;}
   var ms=MEMBERS.map(function(m){return m.id}).filter(function(m){return fm[m]});
   if(!ms.length)ms=FAM.slice();
-  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$("rep").value,reminder_minutes:$("reminder").value?Number($("reminder").value):null,note:$("note").value.trim()};
+  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$("rep").value,reminder_minutes:$("reminder").value?Number($("reminder").value):null,note:$("note").value.trim(),visibility:$("eventVisibility").value};
   if(store){if(editId)store.update(editId,o);else store.add(o);}
   sel=sd;view=new Date(+sd.slice(0,4),+sd.slice(5,7)-1,1);closeForm();
 };
@@ -627,14 +645,14 @@ $("vl").onclick=function(){mode="list";render();};
 var sb=null, channel=null, poller=null, sessionUser=null;
 var familyId=window.FAMCAL_CONFIG && window.FAMCAL_CONFIG.familyId;
 var config=window.FAMCAL_CONFIG||{};
-var fields=['title','start','end','allDay','st','et','ms','rep','note','reminder_minutes'];
+var fields=['title','start','end','allDay','st','et','ms','rep','note','reminder_minutes','visibility'];
 function record(e){var x={family_id:familyId};fields.forEach(function(k){x[k]=e[k]});return x;}
 function msg(e){return e&&e.message?e.message:String(e||'Unbekannter Fehler');}
 function authMessage(t){$('authMessage').textContent=t;}
 function locked(t){store=null;state.events=[];status=t||'Bitte anmelden';$('authScreen').style.display='flex';$('logoutBtn').style.display='none';render();}
 async function refresh(){
   if(!sessionUser)return;
-  var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note,reminder_minutes').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
+  var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note,reminder_minutes,visibility,created_by').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
   if(result.error){status='Synchronisierung fehlgeschlagen: '+msg(result.error);render();return;}
   state.events=result.data||[];status='Synchronisiert';render();
 }
@@ -654,9 +672,9 @@ async function write(kind,id,ev){
 async function enter(){
   var r=await sb.auth.getUser();sessionUser=r.data&&r.data.user;
   if(!sessionUser){locked();return;}
-  var m=await sb.from('family_members').select('family_id').eq('family_id',familyId).eq('user_id',sessionUser.id).maybeSingle();
+  var m=await sb.from('family_members').select('family_id,role').eq('family_id',familyId).eq('user_id',sessionUser.id).maybeSingle();
   if(m.error||!m.data){locked('Konto noch nicht für die Familie freigeschaltet');authMessage('Angemeldet als '+sessionUser.email+'. Der Administrator muss deine Benutzer-ID in family_members freischalten: '+sessionUser.id);return;}
-  $('authScreen').style.display='none';$('logoutBtn').style.display='inline-block';
+  userRole=m.data.role||'child';$('authScreen').style.display='none';$('logoutBtn').style.display='inline-block';
   store={add:function(e){return write('add',null,e)},update:function(id,e){return write('update',id,e)},del:function(id){return write('delete',id,null)}};
   if(channel)await sb.removeChannel(channel);
   channel=sb.channel('family-events-'+familyId).on('postgres_changes',{event:'*',schema:'public',table:'events',filter:'family_id=eq.'+familyId},function(){refresh()}).subscribe();
@@ -683,7 +701,7 @@ $('save').onclick=async function(){
   if(ed<sd){$('err').textContent='Das Ende liegt vor dem Beginn.';return;}
   if(!ad&&ed===sd&&st&&et&&et<st){$('err').textContent='Die Endzeit liegt vor der Startzeit.';return;}
   var ms=MEMBERS.map(function(m){return m.id}).filter(function(m){return fm[m]});if(!ms.length)ms=FAM.slice();
-  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$('rep').value,reminder_minutes:$('reminder').value?Number($('reminder').value):null,note:$('note').value.trim()};
+  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$('rep').value,reminder_minutes:$('reminder').value?Number($('reminder').value):null,note:$('note').value.trim(),visibility:$('eventVisibility').value};
   if(!store){$('err').textContent='Bitte zuerst anmelden.';return;}
   var ok=editId?await store.update(editId,o):await store.add(o);
   if(ok){sel=sd;view=new Date(+sd.slice(0,4),+sd.slice(5,7)-1,1);closeForm();}
@@ -705,7 +723,7 @@ function familySwitch(page){
  $('monthView').style.display=cal&&mode==='month'?'block':'none';
  $('dayPanel').style.display=cal&&mode==='month'?'block':'none';
  $('listPanel').style.display=cal&&mode==='list'?'block':'none';
- $('chips').style.display=cal?'':'none';
+ $('chips').style.display=cal?'':'none';$('eventFilters').style.display=cal?'flex':'none';
  document.querySelector('.top .seg').style.display=cal?'':'none';
  ['familyTasks','familyShopping','familyMore'].forEach(function(id){$(id).classList.toggle('active',id==='family'+page.charAt(0).toUpperCase()+page.slice(1));});
  document.querySelectorAll('#familyNav button').forEach(function(b){b.classList.toggle('active',b.dataset.page===page);});
@@ -743,6 +761,19 @@ $('homeScene').onchange=function(){localStorage.setItem('famcal_home_scene',this
 $('homeAllEvents').onclick=function(){familySwitch('calendar');};
 $('homeUpcomingLink').onclick=function(){familySwitch('calendar');mode='list';render();};
 document.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){familySwitch(b.dataset.go);};});
+// Visibility filters: these only filter rows already authorized by Supabase RLS.
+(function(){
+ var bar=document.createElement('div');bar.className='visibilityFilters';bar.id='eventFilters';
+ bar.innerHTML='<button type="button" data-scope="all" class="selected">Alle</button><button type="button" data-scope="family">Familie</button><button type="button" data-scope="private">🔒 Privat</button>';
+ $('chips').parentNode.insertBefore(bar,$('chips'));
+ function bind(id,which){document.querySelectorAll('#'+id+' button').forEach(function(b){b.onclick=function(){
+  if(which==='events')eventScope=b.dataset.scope;else taskScope=b.dataset.scope;
+  document.querySelectorAll('#'+id+' button').forEach(function(x){x.classList.toggle('selected',x===b);});
+  if(which==='events'){render();if(familyPage==='home')homeRender();}else familyDraw('tasks');
+ };});}
+ bind('eventFilters','events');bind('taskFilters','tasks');
+})();
+
 
 function familyElement(tag,content,cls){
  var e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(cls)e.className=cls;return e;
@@ -750,7 +781,7 @@ function familyElement(tag,content,cls){
 function familyDraw(table){
  var root=$(table==='tasks'?'taskList':table==='shopping_items'?'shoppingList':'anniversaryList');
  root.replaceChildren();
- var rows=familyData[table]||[];
+ var rows=(familyData[table]||[]).filter(function(item){return table!=='tasks'||taskScope==='all'||(item.visibility||'family')===taskScope;});
  if(!rows.length){root.appendChild(familyElement('p','Noch keine Einträge.','empty'));return;}
  rows.forEach(function(item){
   var row=familyElement('div',undefined,'familyItem'+(item.completed?' done':''));
@@ -761,7 +792,7 @@ function familyDraw(table){
    row.appendChild(check);
   }
   var detail=item.title;
-  if(table==='tasks')detail+=(item.assigned_to?' · '+({daniel:'Dani',caro:'Caro',lara:'Lara',mila:'Mila'}[item.assigned_to]||item.assigned_to):'')+(item.due_date?' · '+item.due_date:'');
+  if(table==='tasks')detail+=(item.visibility==='private'?'🔒 ':'')+(item.assigned_to?' · '+({daniel:'Dani',caro:'Caro',lara:'Lara',mila:'Mila'}[item.assigned_to]||item.assigned_to):'')+(item.due_date?' · '+item.due_date:'');
   if(table==='shopping_items'&&item.quantity)detail+=' · '+item.quantity;
   if(table==='anniversaries')detail+=' · '+(item.kind==='birthday'?'Geburtstag':'Jahrestag')+' · '+item.event_date.slice(8,10)+'.'+item.event_date.slice(5,7)+'.';
   row.appendChild(familyElement('span',detail));
@@ -792,7 +823,7 @@ async function familyMutate(table,action,data,id){
 }
 $('taskForm').onsubmit=function(e){
  e.preventDefault();var title=$('taskTitle').value.trim();if(!title)return;
- familyMutate('tasks','insert',{title:title,assigned_to:$('taskAssignee').value||null,due_date:$('taskDue').value||null}).then(function(){});$('taskTitle').value='';
+ familyMutate('tasks','insert',{title:title,assigned_to:$('taskAssignee').value||null,due_date:$('taskDue').value||null,visibility:$('taskVisibility').value}).then(function(){});$('taskTitle').value='';$('taskVisibility').value='family';
 };
 $('shoppingForm').onsubmit=function(e){
  e.preventDefault();var title=$('shoppingTitle').value.trim();if(!title)return;
