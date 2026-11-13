@@ -386,7 +386,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
       <div class="peopleField"><label>Personen</label><small>Ohne Auswahl: Dani, Caro und Lara</small><div class="chips" id="fchips" style="margin:4px 0 0"></div></div>
       <div><label for="rep">Wiederholung</label>
         <select id="rep"><option value="none">Keine</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></div>
-      <div><label for="reminder">Erinnerung</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select><small class="empty">Die Benachrichtigung wird erst in der Android-App aktiviert.</small></div>
+      <div><label for="reminder">Erinnerung</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select><small class="empty">Für Push-Erinnerungen dieses Gerät unter Mehr registrieren.</small></div>
       <div><label for="note">Ort / Notiz (optional)</label><input id="note" maxlength="200"></div>
 
       <div id="attachmentsPanel" class="attachmentCard" style="display:none">
@@ -468,7 +468,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
   <button id="pushRegister" class="btn" type="button">Benachrichtigungen aktivieren</button>
   <button id="pushUnregister" class="btn" type="button" style="margin-top:8px;background:#666">Dieses Gerät abmelden</button>
   <p id="pushStatus" role="status" aria-live="polite" style="font-size:13px;overflow-wrap:anywhere">Noch nicht eingerichtet.</p>
-  <small>Geräte-Registrierung. Der automatische Versand ist noch nicht aktiviert.</small>
+  <small>Registriere jedes Gerät, auf dem du Erinnerungen erhalten möchtest.</small>
  </div>
  <div class="settingsGroupTitle">Design &amp; Darstellung</div>
  <h2 style="margin-top:22px">Darstellung</h2>
@@ -559,7 +559,7 @@ function evRow(e){
   var sm=document.createElement("small");
   var parts=[timeLabel(e),e.visibility==="private"?"🔒 Privat":(isFam(e.ms)?"Familie":e.ms.map(function(m){return mem(m).name}).join(", "))];
   if(e.rep!=="none")parts.push("↻ "+REP[e.rep]);
-  if(e.reminder_minutes!=null)parts.push("🔔 "+({15:"15 Min.",60:"1 Std.",1440:"1 Tag",10080:"1 Woche"}[e.reminder_minutes]||e.reminder_minutes+" Min.")+" vorher (vorgemerkt)");
+  if(e.reminder_minutes!=null)parts.push("🔔 "+({15:"15 Min.",60:"1 Std.",1440:"1 Tag",10080:"1 Woche"}[e.reminder_minutes]||e.reminder_minutes+" Min.")+" vorher");
   if(e.note)parts.push(e.note);
   sm.textContent=parts.filter(Boolean).join(" · ");
   t.appendChild(b);t.appendChild(document.createElement("br"));t.appendChild(sm);
@@ -1100,7 +1100,7 @@ $('attachmentUpload').onclick=async function(){
 
 locked('Bitte anmelden');familySwitch('home');setup();
 </script>
-<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=18").catch(console.warn);</script>
+<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=19").catch(console.warn);</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  var add=document.getElementById('calendarQuickAdd');
@@ -1274,7 +1274,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    if(!obj.keys?.p256dh||!obj.keys?.auth)throw Error('Push-Abonnement enthält keine Schlüssel.');
    const {error}=await window.sb.from('push_subscriptions').upsert({user_id:window.sessionUser.id,endpoint:obj.endpoint,p256dh:obj.keys.p256dh,auth_key:obj.keys.auth},{onConflict:'endpoint'});
    if(error)throw error;
-   say('Dieses Gerät ist registriert. Testversand folgt im nächsten Schritt.');
+   say('Dieses Gerät ist für Push-Erinnerungen registriert.');
   }catch(e){say('Registrierung fehlgeschlagen: '+e.message);}finally{this.disabled=false;}
  });
  document.getElementById('pushUnregister').addEventListener('click',async function(){
