@@ -352,6 +352,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 #anniversaryList .familyItem button[aria-label="Eintrag bearbeiten"]{margin-left:auto}
 </style>
 <link rel="stylesheet" href="ui-modern.css?v=18">
+<style>#eventLegacyReminder[hidden],#taskLegacyReminder[hidden]{display:none!important}@media(max-width:440px){#formPanel .row:has(#reminder){grid-template-columns:1fr}}</style>
 </head>
 <body>
 <div class="wrap">
@@ -386,7 +387,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
       <div class="peopleField"><label>Personen</label><small>Ohne Auswahl: Dani, Caro und Lara</small><div class="chips" id="fchips" style="margin:4px 0 0"></div></div>
       <div><label for="rep">Wiederholung</label>
         <select id="rep"><option value="none">Keine</option><option value="daily">Täglich</option><option value="weekly">Wöchentlich</option><option value="monthly">Monatlich</option><option value="yearly">Jährlich</option></select></div>
-      <div><label for="reminder">Erinnerung</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select><small class="empty">Für Push-Erinnerungen dieses Gerät unter Mehr registrieren.</small></div>
+      <div class="row"><div><label for="reminder">Erinnerung 1</label><select id="reminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="30">30 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select></div><div><label for="reminder2">Erinnerung 2</label><select id="reminder2"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="30">30 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select></div></div><div id="eventLegacyReminder" hidden><label class="chk"><input id="eventLegacyDue" type="checkbox">Bisherige Nachricht am Termintag um 09:00 Uhr beibehalten</label></div><small class="empty">Ohne Auswahl keine neue Erinnerung. Ganztägige Termine beziehen sich auf 09:00 Uhr. Für Push dieses Gerät unter Mehr registrieren.</small>
       <div><label for="note">Ort / Notiz (optional)</label><input id="note" maxlength="200"></div>
 
       <div id="attachmentsPanel" class="attachmentCard" style="display:none">
@@ -431,6 +432,10 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
   <label class="taskField">Zuständig<select id="taskAssignee" aria-label="Zuständig"><option value="">Alle</option><option value="daniel">Dani</option><option value="caro">Caro</option><option value="lara">Lara</option><option value="mila">Mila</option></select></label>
   <label class="taskField">Fälligkeitsdatum (optional)<input id="taskDue" type="date"></label>
   <label class="taskField">Uhrzeit (optional)<input id="taskTime" type="time" aria-label="Uhrzeit optional"></label>
+  <label class="taskField">Erinnerung 1<select id="taskReminder"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="30">30 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select></label>
+  <label class="taskField">Erinnerung 2<select id="taskReminder2"><option value="">Keine Erinnerung</option><option value="15">15 Minuten vorher</option><option value="30">30 Minuten vorher</option><option value="60">1 Stunde vorher</option><option value="1440">1 Tag vorher</option><option value="10080">1 Woche vorher</option></select></label>
+  <div id="taskLegacyReminder" hidden style="flex:1 1 100%"><label class="chk"><input id="taskLegacyDue" type="checkbox">Bisherige Fälligkeitsnachricht beibehalten</label></div>
+  <small class="empty" style="flex:1 1 100%">Ohne Uhrzeit gilt 09:00 Uhr; 15/30/60 Minuten vorher bleiben dann am Fälligkeitstag.</small>
   <label class="taskField">Sichtbarkeit<select id="taskVisibility" aria-label="Sichtbarkeit"><option value="family">👥 Familie</option><option value="private">🔒 Privat</option></select></label>
   <button class="btn" id="taskSubmit" type="submit">Hinzufügen</button>
   <button class="btn" id="taskCancelEdit" type="button" hidden>Abbrechen</button>
@@ -504,8 +509,17 @@ function dn(k){var p=k.split("-");return Math.round(Date.UTC(+p[0],+p[1]-1,+p[2]
 function fromDn(n){var d=new Date(n*86400000);return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");}
 function mem(id){return MEMBERS.find(function(m){return m.id===id})||{name:"?",color:"#999"};}
 var sel=iso(today);
+function legacyReminderValue(kind){
+ var first=$(kind==='event'?'reminder':'taskReminder'),second=$(kind==='event'?'reminder2':'taskReminder2');
+ return $(kind==='event'?'eventLegacyDue':'taskLegacyDue').checked&&!first.value&&!second.value&&(kind!=='event'||$('ad').checked);
+}
+function syncLegacyReminder(kind){
+ var id=kind==='event'?'eventLegacy':'taskLegacy';
+ $(id+'Reminder').hidden=!legacyReminderValue(kind);
+}
+['reminder','reminder2','taskReminder','taskReminder2'].forEach(function(id){$(id).addEventListener('change',function(){syncLegacyReminder(id.indexOf('task')===0?'task':'event');});});
 function norm(e){
-  var o={id:e.id,title:e.title||"",start:e.start||e.date||iso(today),end:e.end||e.start||e.date||iso(today),allDay:!!e.allDay,st:e.st!==undefined?e.st:(e.time||""),et:e.et||"",ms:e.ms||(e.m?[e.m]:[]),rep:e.rep||"none",reminder_minutes:e.reminder_minutes??null,note:e.note||"",visibility:e.visibility||"family",created_by:e.created_by||null};
+  var o={id:e.id,title:e.title||"",start:e.start||e.date||iso(today),end:e.end||e.start||e.date||iso(today),allDay:!!e.allDay,st:e.st!==undefined?e.st:(e.time||""),et:e.et||"",ms:e.ms||(e.m?[e.m]:[]),rep:e.rep||"none",reminder_minutes:e.reminder_minutes??null,reminder2_minutes:e.reminder2_minutes??null,legacy_due_notification:!!e.legacy_due_notification,note:e.note||"",visibility:e.visibility||"family",created_by:e.created_by||null};
   if(!o.ms.length)o.ms=FAM.slice();
   return o;
 }
@@ -559,7 +573,9 @@ function evRow(e){
   var sm=document.createElement("small");
   var parts=[timeLabel(e),e.visibility==="private"?"🔒 Privat":(isFam(e.ms)?"Familie":e.ms.map(function(m){return mem(m).name}).join(", "))];
   if(e.rep!=="none")parts.push("↻ "+REP[e.rep]);
-  if(e.reminder_minutes!=null)parts.push("🔔 "+({15:"15 Min.",60:"1 Std.",1440:"1 Tag",10080:"1 Woche"}[e.reminder_minutes]||e.reminder_minutes+" Min.")+" vorher");
+  var reminders=[...new Set([e.reminder_minutes,e.reminder2_minutes].filter(function(v){return v!=null;}))];
+  if(reminders.length)parts.push("🔔 "+reminders.map(function(v){return ({15:"15 Min.",30:"30 Min.",60:"1 Std.",1440:"1 Tag",10080:"1 Woche"}[v]||v+" Min.")+" vorher";}).join(", "));
+  else if(e.legacy_due_notification&&e.allDay)parts.push("🔔 Am Termintag um 09:00 Uhr");
   if(e.note)parts.push(e.note);
   sm.textContent=parts.filter(Boolean).join(" · ");
   t.appendChild(b);t.appendChild(document.createElement("br"));t.appendChild(sm);
@@ -654,14 +670,14 @@ function openForm(e){
   $("formTitle").textContent=e?"Termin bearbeiten":"Neuer Termin";
   var v=e||{title:"",start:sel,end:sel,allDay:false,st:"",et:"",ms:[],rep:"none",note:""};
   $("et").value=v.title;$("ad").checked=v.allDay;$("sd").value=v.start;$("ed").value=v.end;
-  $("st").value=v.st;$("etm").value=v.et;$("rep").value=v.rep;$("reminder").value=v.reminder_minutes==null?"":String(v.reminder_minutes);$("note").value=v.note;
+  $("st").value=v.st;$("etm").value=v.et;$("rep").value=v.rep;$("reminder").value=v.reminder_minutes==null?"":String(v.reminder_minutes);$("reminder2").value=v.reminder2_minutes==null?"":String(v.reminder2_minutes);$("eventLegacyDue").checked=!!v.legacy_due_notification;syncLegacyReminder("event");$("note").value=v.note;
   fm={};(e&&!isFam(e.ms)?e.ms:[]).forEach(function(m){fm[m]=true;});
   $("del").style.display=e&&canDeleteEvent(e)?"block":"none";$("err").textContent="";
   formActive=true;
   syncAD();render();window.scrollTo({top:0,behavior:"instant"});
 }
 function closeForm(){formActive=false;editId=null;render();window.scrollTo({top:0,behavior:"instant"});}
-function syncAD(){var a=$("ad").checked;$("st").disabled=a;$("etm").disabled=a;}
+function syncAD(){var a=$("ad").checked;$("st").disabled=a;$("etm").disabled=a;syncLegacyReminder("event");}
 function plus1(t){var p=t.split(":"),h=Math.min(+p[0]+1,23);return String(h).padStart(2,"0")+":"+(+p[0]+1>23?"59":p[1]);}
 $("ad").onchange=syncAD;
 $("sd").onchange=function(){if(!$("ed").value||$("ed").value<$("sd").value)$("ed").value=$("sd").value;};
@@ -676,7 +692,7 @@ $("save").onclick=function(){
   if(!ad&&ed===sd&&st&&et&&et<st){$("err").textContent="Die Endzeit liegt vor der Startzeit.";return;}
   var ms=MEMBERS.map(function(m){return m.id}).filter(function(m){return fm[m]});
   if(!ms.length)ms=FAM.slice();
-  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$("rep").value,reminder_minutes:$("reminder").value?Number($("reminder").value):null,note:$("note").value.trim(),visibility:$("eventVisibility").value};
+  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$("rep").value,reminder_minutes:$("reminder").value?Number($("reminder").value):null,reminder2_minutes:$("reminder2").value?Number($("reminder2").value):null,legacy_due_notification:legacyReminderValue("event"),note:$("note").value.trim(),visibility:$("eventVisibility").value};
   if(store){if(editId)store.update(editId,o);else store.add(o);}
   sel=sd;view=new Date(+sd.slice(0,4),+sd.slice(5,7)-1,1);closeForm();
 };
@@ -690,14 +706,14 @@ $("vl").onclick=function(){mode="list";render();};
 var sb=null, channel=null, poller=null, sessionUser=null;
 var familyId=window.FAMCAL_CONFIG && window.FAMCAL_CONFIG.familyId;
 var config=window.FAMCAL_CONFIG||{};
-var fields=['title','start','end','allDay','st','et','ms','rep','note','reminder_minutes','visibility'];
+var fields=['title','start','end','allDay','st','et','ms','rep','note','reminder_minutes','reminder2_minutes','legacy_due_notification','visibility'];
 function record(e){var x={family_id:familyId};fields.forEach(function(k){x[k]=e[k]});return x;}
 function msg(e){return e&&e.message?e.message:String(e||'Unbekannter Fehler');}
 function authMessage(t){$('authMessage').textContent=t;}
 function locked(t){store=null;state.events=[];status=t||'Bitte anmelden';$('authScreen').style.display='flex';$('logoutBtn').style.display='none';render();}
 async function refresh(){
   if(!sessionUser)return;
-  var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note,reminder_minutes,visibility,created_by').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
+  var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note,reminder_minutes,reminder2_minutes,legacy_due_notification,visibility,created_by').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
   if(result.error){status='Synchronisierung fehlgeschlagen: '+msg(result.error);render();return;}
   state.events=result.data||[];status='Synchronisiert';render();
 }
@@ -747,7 +763,7 @@ $('save').onclick=async function(){
   if(ed<sd){$('err').textContent='Das Ende liegt vor dem Beginn.';return;}
   if(!ad&&ed===sd&&st&&et&&et<st){$('err').textContent='Die Endzeit liegt vor der Startzeit.';return;}
   var ms=MEMBERS.map(function(m){return m.id}).filter(function(m){return fm[m]});if(!ms.length)ms=FAM.slice();
-  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$('rep').value,reminder_minutes:$('reminder').value?Number($('reminder').value):null,note:$('note').value.trim(),visibility:$('eventVisibility').value};
+  var o={title:t,start:sd,end:ed,allDay:ad,st:st,et:et,ms:ms,rep:$('rep').value,reminder_minutes:$('reminder').value?Number($('reminder').value):null,reminder2_minutes:$('reminder2').value?Number($('reminder2').value):null,legacy_due_notification:legacyReminderValue('event'),note:$('note').value.trim(),visibility:$('eventVisibility').value};
   if(!store){$('err').textContent='Bitte zuerst anmelden.';return;}
   var ok=editId?await store.update(editId,o):await store.add(o);
   if(ok){sel=sd;view=new Date(+sd.slice(0,4),+sd.slice(5,7)-1,1);closeForm();}
@@ -890,7 +906,7 @@ function familyDraw(table){
   }else row.appendChild(familyElement('span',detail));
   if(table==='tasks'){
    var edit=familyElement('button','✎');edit.type='button';edit.setAttribute('aria-label','Aufgabe bearbeiten');
-   edit.onclick=function(){$('taskComposer').open=true;$('taskComposerTitle').textContent='Aufgabe bearbeiten';taskEditingId=item.id;$('taskTitle').value=item.title||'';$('taskAssignee').value=item.assigned_to||'';$('taskDue').value=item.due_date||'';$('taskTime').value=item.due_time?String(item.due_time).slice(0,5):'';$('taskVisibility').value=item.visibility||'family';$('taskSubmit').textContent='Änderungen speichern';$('taskCancelEdit').hidden=false;$('taskForm').scrollIntoView({behavior:'smooth',block:'center'});$('taskTitle').focus();};
+   edit.onclick=function(){$('taskComposer').open=true;$('taskComposerTitle').textContent='Aufgabe bearbeiten';taskEditingId=item.id;$('taskTitle').value=item.title||'';$('taskAssignee').value=item.assigned_to||'';$('taskDue').value=item.due_date||'';$('taskTime').value=item.due_time?String(item.due_time).slice(0,5):'';$('taskVisibility').value=item.visibility||'family';$('taskReminder').value=item.reminder_minutes==null?'':String(item.reminder_minutes);$('taskReminder2').value=item.reminder2_minutes==null?'':String(item.reminder2_minutes);$('taskLegacyDue').checked=!!item.legacy_due_notification;syncLegacyReminder('task');$('taskSubmit').textContent='Änderungen speichern';$('taskCancelEdit').hidden=false;$('taskForm').scrollIntoView({behavior:'smooth',block:'center'});$('taskTitle').focus();};
    row.appendChild(edit);
   }
   if(table==='anniversaries'){
@@ -933,11 +949,12 @@ async function familyMutate(table,action,data,id){
  }catch(e){familyNotice('Fehler: '+msg(e));return false;}
 }
 var taskEditingId=null;
-function taskResetForm(){$('taskComposer').open=false;$('taskComposerTitle').textContent='Neue Aufgabe';taskEditingId=null;$('taskForm').reset();$('taskSubmit').textContent='Hinzufügen';$('taskCancelEdit').hidden=true;}
+function taskResetForm(){$('taskComposer').open=false;$('taskComposerTitle').textContent='Neue Aufgabe';taskEditingId=null;$('taskForm').reset();$('taskLegacyDue').checked=false;syncLegacyReminder('task');$('taskSubmit').textContent='Hinzufügen';$('taskCancelEdit').hidden=true;}
 $('taskCancelEdit').onclick=taskResetForm;
 $('taskForm').onsubmit=async function(e){
  e.preventDefault();var title=$('taskTitle').value.trim();if(!title)return;
- var payload={title:title,assigned_to:$('taskAssignee').value||null,due_date:$('taskDue').value||null,due_time:$('taskTime').value||null,visibility:$('taskVisibility').value};
+ var payload={title:title,assigned_to:$('taskAssignee').value||null,due_date:$('taskDue').value||null,due_time:$('taskTime').value||null,visibility:$('taskVisibility').value,reminder_minutes:$('taskReminder').value?Number($('taskReminder').value):null,reminder2_minutes:$('taskReminder2').value?Number($('taskReminder2').value):null,legacy_due_notification:legacyReminderValue('task')};
+ if((payload.reminder_minutes!=null||payload.reminder2_minutes!=null)&&!payload.due_date){familyNotice('Bitte ein Fälligkeitsdatum für die Erinnerung wählen.');return;}
  var id=taskEditingId;
  var ok=await familyMutate('tasks',id?'update':'insert',payload,id);
  if(ok)taskResetForm();
@@ -1100,7 +1117,7 @@ $('attachmentUpload').onclick=async function(){
 
 locked('Bitte anmelden');familySwitch('home');setup();
 </script>
-<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=19").catch(console.warn);</script>
+<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=20").catch(console.warn);</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  var add=document.getElementById('calendarQuickAdd');

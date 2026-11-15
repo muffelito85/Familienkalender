@@ -35,20 +35,37 @@ function parts(date: Date, zone = DEFAULT_ZONE) {
     minute: Number(get('hour')) * 60 + Number(get('minute')) };
 }
 function localDateTime(day: string, time: string, zone = DEFAULT_ZONE): Date {
-  // Iterative conversion handles CET/CEST without fixed UTC offsets.
   const [y, m, d] = day.split('-').map(Number);
   const [h, min] = time.split(':').map(Number);
   const target = Date.UTC(y, m - 1, d, h || 0, min || 0);
-  let guess = target;
-  for (let i = 0; i < 5; i++) {
-    const p = parts(new Date(guess), zone);
+  const wall = (instant: number) => {
+    const p = parts(new Date(instant), zone);
     const [py, pm, pd] = p.day.split('-').map(Number);
-    const actual = Date.UTC(py, pm - 1, pd, Math.floor(p.minute / 60), p.minute % 60);
-    const delta = target - actual;
-    if (delta === 0) break;
-    guess += delta;
+    return Date.UTC(py, pm - 1, pd, Math.floor(p.minute / 60), p.minute % 60);
+  };
+  const offsets = new Set<number>();
+  for (const hours of [-36, -12, 0, 12, 36]) {
+    const probe = target + hours * 3600000;
+    offsets.add(wall(probe) - probe);
   }
-  return new Date(guess);
+  const candidates = [...offsets].map(offset => target - offset);
+  const exact = candidates.filter(instant => wall(instant) === target);
+  // Repeated autumn hour: first occurrence. Missing spring hour: move forward by the gap.
+  if (exact.length) return new Date(Math.min(...exact));
+  const after = candidates.filter(instant => wall(instant) >= target)
+    .sort((a, b) => wall(a) - wall(b) || a - b);
+  if (!after.length) throw new Error('Local date/time could not be resolved');
+  return new Date(after[0]);
+}
+function reminderLeads(row: any): number[] {
+  const allowed = [15, 30, 60, 1440, 10080];
+  return [...new Set<number>([row.reminder_minutes, row.reminder2_minutes]
+    .filter(value => typeof value === 'number' && allowed.includes(value)))];
+}
+function reminderDate(day: string, time: string, lead: number): Date {
+  // Day/week choices preserve Berlin wall-clock time across 23/25-hour DST days.
+  if (lead === 1440 || lead === 10080) return localDateTime(dateShift(day, -lead / 1440), time);
+  return new Date(localDateTime(day, time).getTime() - lead * 60000);
 }
 function dateShift(day: string, n: number) {
   const d = new Date(`${day}T12:00:00Z`);
@@ -136,34 +153,47 @@ async function buildCandidates(sb: any, now: Date): Promise<Candidate[]> {
   // Includes yesterday's reminders that may be delayed by quiet hours.
   const days = Array.from({ length: 12 }, (_, i) => dateShift(today, i - 2));
   const [events, tasks, anniversaries] = await Promise.all([
-    readAll(sb, 'events', 'id,title,start,end,allDay,st,ms,rep,reminder_minutes,created_by,visibility'),
-    readAll(sb, 'tasks', 'id,title,assigned_to,due_date,due_time,completed,visibility,created_by'),
+    readAll(sb, 'events', 'id,title,start,end,allDay,st,ms,rep,reminder_minutes,reminder2_minutes,legacy_due_notification,created_by,visibility'),
+    readAll(sb, 'tasks', 'id,title,assigned_to,due_date,due_time,completed,visibility,created_by,reminder_minutes,reminder2_minutes,legacy_due_notification'),
     readAll(sb, 'anniversaries', 'id,title,kind,event_date'),
   ]);
   const result: Candidate[] = [];
   for (const e of events) {
-    if (!e.allDay && (e.reminder_minutes === null || e.reminder_minutes === undefined)) continue;
-    const lead = e.allDay ? 0 : Number(e.reminder_minutes);
-    if (!Number.isFinite(lead) || lead < 0) continue;
+    const configured = reminderLeads(e);
+    const legacy = e.legacy_due_notification ?? e.allDay;
+    const leads = configured.length ? configured : (legacy && e.allDay ? [0] : []);
     for (const day of days) {
-      if (!occurs(e, day)) continue;
-      const start = localDateTime(day, e.allDay ? '09:00' : (e.st || '09:00'));
-      const scheduled = new Date(start.getTime() - lead * 60000);
-      result.push({ key: `event:${e.id}:${day}:${lead}`, type: 'event', sourceId: e.id,
-        scheduled, recipients: recipients(e.visibility, e.ms, e.created_by),
-        title: '📅 Terminerinnerung', body: String(e.title || 'Termin') });
+      if (!leads.length || !occurs(e, day)) continue;
+      for (const lead of leads) {
+        const scheduled = reminderDate(day, e.allDay ? '09:00' : (e.st || '09:00'), lead);
+        // Retain the first-reminder key format. Slot swaps and equal leads must not resend.
+        result.push({ key: `event:${e.id}:${day}:${lead}`, type: 'event', sourceId: e.id,
+          scheduled, recipients: recipients(e.visibility, e.ms, e.created_by),
+          title: '📅 Terminerinnerung', body: String(e.title || 'Termin') });
+      }
     }
   }
   for (const t of tasks) {
     if (t.completed || !t.due_date) continue;
     const person = PEOPLE[String(t.assigned_to || '').toLowerCase()];
-    // Tasks with no assignment notify creator; family visibility is not an assignment.
     const targets = t.visibility === 'private'
       ? recipients('private', [], t.created_by)
       : person ? [person] : (ALL_USERS.includes(t.created_by) ? [t.created_by] : []);
-    result.push({ key: `task:${t.id}:${t.due_date}:${t.due_time || '09:00'}`, type: 'task',
-      sourceId: t.id, scheduled: localDateTime(t.due_date, t.due_time || '09:00'),
-      recipients: targets, title: '✅ Aufgabe fällig', body: String(t.title || 'Aufgabe') });
+    const configured = reminderLeads(t);
+    // Missing fields also support old fixtures/records. Migrated rows have an explicit marker.
+    const legacy = t.legacy_due_notification ??
+      (t.reminder_minutes === undefined && t.reminder2_minutes === undefined);
+    const leads = configured.length ? configured : (legacy ? [0] : []);
+    for (const lead of leads) {
+      const time = t.due_time || '09:00';
+      const key = configured.length
+        ? `task:${t.id}:${t.due_date}:${String(time).slice(0,5)}:lead:${lead}`
+        : `task:${t.id}:${t.due_date}:${time}`;
+      result.push({ key, type: 'task', sourceId: t.id,
+        scheduled: reminderDate(t.due_date, time, lead), recipients: targets,
+        title: configured.length ? '✅ Aufgabenerinnerung' : '✅ Aufgabe fällig',
+        body: String(t.title || 'Aufgabe') });
+    }
   }
   for (const a of anniversaries) {
     if (!a.event_date) continue;
@@ -262,8 +292,8 @@ Deno.serve(async (req) => {
         }, {}), no_push_sent: true });
     }
     configurePush();
-    let sent = 0, skipped = 0, failed = 0;
-    for (const { c, userId } of due) {
+    let sent = 0, skipped = 0, failed = 0, lateSent = 0, maxDelaySeconds = 0;
+    for (const { c, userId, due: quietAdjusted } of due) {
       const { data: claimed, error: claimError } = await sb.rpc('claim_notification_delivery', {
         p_user_id: userId, p_notification_key: c.key, p_notification_type: c.type,
         p_source_id: c.sourceId, p_scheduled_for: c.scheduled.toISOString(),
@@ -271,11 +301,21 @@ Deno.serve(async (req) => {
       if (claimError) throw new Error(`claim_notification_delivery: ${claimError.message}`);
       if (!claimed) { skipped++; continue; }
       try {
+        const attemptedAt = new Date();
         await sendToUser(sb, userId, {
           title: c.title, body: c.body, url: './', tag: c.key,
         });
+        const acceptedAt = new Date();
+        const delaySeconds = Math.max(0, Math.round((acceptedAt.getTime() - c.scheduled.getTime()) / 1000));
+        maxDelaySeconds = Math.max(maxDelaySeconds, delaySeconds);
+        if (delaySeconds > 90) lateSent++;
+        console.info(JSON.stringify({ event: 'reminder_provider_accepted', notification_key: c.key,
+          scheduled_for: c.scheduled.toISOString(), quiet_adjusted_for: quietAdjusted.toISOString(),
+          attempted_at: attemptedAt.toISOString(), provider_accepted_at: acceptedAt.toISOString(),
+          seconds_after_scheduled: delaySeconds,
+          seconds_after_quiet_adjusted: Math.max(0, Math.round((acceptedAt.getTime() - quietAdjusted.getTime()) / 1000)) }));
         const { error } = await sb.from('notification_deliveries').update({
-          status: 'sent', sent_at: new Date().toISOString(), last_error: null,
+          status: 'sent', sent_at: acceptedAt.toISOString(), last_error: null,
         }).eq('user_id', userId).eq('notification_key', c.key).eq('status', 'processing');
         if (error) throw new Error(`delivery update: ${error.message}`);
         sent++;
@@ -288,7 +328,7 @@ Deno.serve(async (req) => {
         failed++;
       }
     }
-    return Response.json({ success: true, mode, due: due.length, sent, skipped, failed });
+    return Response.json({ success: true, mode, due: due.length, sent, skipped, failed, late_sent: lateSent, max_delay_seconds: maxDelaySeconds });
   } catch (e) {
     console.error('send-reminders failed:', e);
     return Response.json({ success: false, error: String((e as Error).message).slice(0, 350) }, { status: 500 });
