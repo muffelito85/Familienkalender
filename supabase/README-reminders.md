@@ -2,10 +2,14 @@
 
 Der produktive Sender heißt `dynamic-api`. Der Quelltext liegt unter `supabase/functions/dynamic-api/index.ts`. Die Funktion verwendet weiterhin die bestehenden Tabellen und `claim_notification_delivery`; private Datensätze werden ausschließlich ihrem Ersteller mitgeteilt, passend zu den aktuellen SELECT-Policies.
 
+## Zwei wählbare Erinnerungen
+
+Verhalten, Migration, Kompatibilität und die abgestimmte produktive Übernahme stehen in [TWO-REMINDERS.md](TWO-REMINDERS.md). Diese Erweiterung benötigt zuerst die neue SQL-Migration und den dazugehörigen Sender; ein Frontend-Merge allein reicht nicht aus.
+
 ## Betrieb
 
 - Der Supabase-Cronjob `family-calendar-reminders` ruft die Funktion jede Minute auf.
-- Zeiten für Kalender und Aufgaben werden in `Europe/Berlin` ausgewertet. Geburtstage und ganztägige Termine sind für 09:00 Uhr vorgesehen; Aufgaben ohne Uhrzeit ebenfalls für 09:00 Uhr.
+- Zeiten für Kalender und Aufgaben werden in `Europe/Berlin` ausgewertet. Geburtstage bleiben für 09:00 Uhr vorgesehen. Ganztägige Termine und Aufgaben ohne Uhrzeit verwenden 09:00 Uhr als Bezug für ausgewählte Erinnerungen. Neue Einträge mit zwei NULL-Werten erinnern nicht; vorhandene automatische Nachrichten bleiben über den ausdrücklich abschaltbaren Bestandsmarker erhalten.
 - Ruhezeiten werden sowohl für den ursprünglichen Termin als auch beim tatsächlichen Versand geprüft. Verzögerte Erinnerungen bleiben bis zum Ende der Ruhezeit zurückgestellt, höchstens innerhalb des bestehenden 24-Stunden-Nachholfensters.
 - Pro Person muss ein Gerät in der PWA unter Mehr registriert werden. Registrierung und `notification_settings.enabled` sind unterschiedliche Voraussetzungen.
 - Die bestehende atomare Claim-Funktion und der eindeutige Index verhindern parallele doppelte Versandaufträge. Nach Netzwerkabbrüchen bleibt eine erneute Zustellung technisch möglich; eine exakt einmalige Anzeige auf jedem Gerät wird nicht garantiert.
