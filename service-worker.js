@@ -1,5 +1,5 @@
-const CACHE='famcal-shell-v20';
-const ASSETS=['./','./index.html','./config.js','./manifest.webmanifest','./icon.svg','./ui-modern.css?v=18','./ui-modern.js?v=18'];
+const CACHE='famcal-shell-v21';
+const ASSETS=['./','./index.html','./push.js?v=21','./config.js','./manifest.webmanifest','./icon.svg','./ui-modern.css?v=18','./ui-modern.js?v=18'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))])));
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request)))});
@@ -12,3 +12,5 @@ self.addEventListener('push',e=>{
 self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(w=>{const existing=w.find(c=>c.url.startsWith(self.registration.scope));if(existing)return existing.focus();return clients.openWindow('./')}))});
 
 
+
+self.addEventListener('pushsubscriptionchange',event=>event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(windows=>{for(const client of windows)client.postMessage({type:'push-subscription-changed'});}))); 
