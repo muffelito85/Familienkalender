@@ -1,0 +1,9 @@
+# Push bei verschobenen Terminen
+
+Am 22.11.2026 wurden zwei Testtermine um 19:51 UTC angelegt. Der Sender übergab die damaligen Erinnerungen um 19:52 UTC an FCM; gespeichert waren Planzeiten 18:55/19:00 UTC. Beide Termine wurden danach um 19:52:43 bzw. 19:52:53 UTC geändert. Ihr aktueller Stand (21:10/21:15 Berlin, 15 Minuten vorher) ergibt 19:55/20:00 UTC. Zu diesen Zeitpunkten blockierte der bereits verwendete Schlüssel eine erneute Sendung. Die PATCH-Protokolle enthalten keine alten Feldwerte; die genaue vorherige Eingabe kann daher nicht abschließend rekonstruiert werden. FCM-Annahme bestätigt keine Geräteanzeige.
+
+Korrektur: Vor dem Claim eines Events wird die Planzeit des vorhandenen Basis-Schlüssels gelesen. Ohne Zeitänderung bleibt der alte Schlüssel erhalten. Bei abweichender Planzeit entsteht ein deterministischer Zusatz :at:<UTC-Planzeit>. Wiederholte Aufrufe und Slottausch bleiben dedupliziert. Bestehende Versandhistorie wird weder gelöscht noch zurückgesetzt. Private Empfänger, Ruhezeiten, Catch-up und Aufgabenlogik bleiben erhalten.
+
+Validierung: bestehende Regression und jetzt 34 zusätzliche Szenarien erfolgreich. Neuer reproduzierender Fall: erste späte Sendung, Zeitverschiebung, vor neuem Zeitpunkt kein Versand, zum neuen Zeitpunkt genau ein Versand, kein Duplikat beim Slottausch, zweite Verschiebung mit eigenem Schlüssel; alte Historie bleibt erhalten. Die aktuelle Berliner Winterzeitberechnung ergibt korrekt 21:10 minus15 = 19:55 UTC und 21:15 minus15 =20:00 UTC.
+
+Übernahme: dynamic-api aus dem PR deployen; bestehende Secrets/HMAC und verify_jwt=false beibehalten. Keine SQL-Migration erforderlich. Geschützten dry-run und nachfolgenden regulären HTTP-Cronlauf prüfen. Im 24-Stunden-Nachholfenster können verschobene, bisher unterdrückte Erinnerungen unmittelbar nachgeholt werden. Kein Empfangs-/Anzeigeversprechen ohne Rückmeldung des Geräts.
