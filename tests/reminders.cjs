@@ -88,6 +88,29 @@ async function dualReminderSuite(){
   ["reminderDate('2027-10-31','09:00',1440)",'2027-10-30T07:00:00.000Z'],
   ["reminderDate('2027-03-28','09:00',10080)",'2027-03-21T08:00:00.000Z']
  ]){assert.equal(dst.run(expression+'.toISOString()'),expected);check();}
+
+ // A time edit after catch-up must produce a new reminder, without resetting history.
+ const moved=fixture('2026-11-22T19:52:00Z');
+ moved.db.events.push({id:'moved',family_id:'11111111-1111-4111-8111-111111111111',title:'Time edit',
+   start:'2026-11-22',end:'2026-11-22',allDay:false,st:'20:10',ms:['daniel'],visibility:'family',
+   created_by:moved.people.daniel,reminder_minutes:15,reminder2_minutes:null,legacy_due_notification:false});
+ assert.equal((await(await moved.request('run')).json()).sent,1);
+ const original=moved.traces[0];
+ moved.db.notification_deliveries=[{user_id:moved.people.daniel,notification_key:original.notification_key,scheduled_for:original.scheduled_for,status:'sent'}];
+ moved.db.events[0].st='21:10';moved.setNow('2026-11-22T19:54:00Z');
+ assert.equal((await(await moved.request('run')).json()).sent,0);
+ moved.setNow('2026-11-22T19:55:00Z');
+ assert.equal((await(await moved.request('run')).json()).sent,1);
+ assert(moved.pushes.at(-1).payload.tag.endsWith(':at:2026-11-22T19:55:00.000Z'));
+ assert.equal((await(await moved.request('run')).json()).sent,0);
+ moved.db.events[0].reminder_minutes=null;moved.db.events[0].reminder2_minutes=15;
+ assert.equal((await(await moved.request('run')).json()).sent,0);
+ moved.db.events[0].st='21:15';moved.setNow('2026-11-22T20:00:00Z');
+ assert.equal((await(await moved.request('run')).json()).sent,1);
+ assert(moved.pushes.at(-1).payload.tag.endsWith(':at:2026-11-22T20:00:00.000Z'));
+ assert.equal(moved.db.notification_deliveries[0].notification_key,original.notification_key);
+ assert.equal(moved.pushes.length,3);
+ check();
  console.log('PASS: '+cases+' two-reminder scenarios, stable keys/slot swaps, legacy compatibility, no-time 09:00, repeats, private recipients, 137-minute catch-up retained and logged, quiet hours and DST transitions.');
 }
 (async()=>{await regressionSuite();await dualReminderSuite()})().catch(e=>{console.error(e);process.exitCode=1});

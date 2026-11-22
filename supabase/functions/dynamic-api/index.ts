@@ -294,8 +294,20 @@ Deno.serve(async (req) => {
     configurePush();
     let sent = 0, skipped = 0, failed = 0, lateSent = 0, maxDelaySeconds = 0;
     for (const { c, userId, due: quietAdjusted } of due) {
+      let deliveryKey = c.key;
+      if (c.type === 'event') {
+        // Preserve legacy keys for unchanged reminders. A changed scheduled instant
+        // needs a distinct key so editing the event time does not suppress its push.
+        const prior = await sb.from('notification_deliveries').select('scheduled_for')
+          .eq('user_id', userId).eq('notification_key', c.key);
+        if (prior.error) throw new Error(`delivery lookup: ${prior.error.message}`);
+        const previous = prior.data?.[0]?.scheduled_for;
+        if (previous && Date.parse(previous) !== c.scheduled.getTime()) {
+          deliveryKey = `${c.key}:at:${c.scheduled.toISOString()}`;
+        }
+      }
       const { data: claimed, error: claimError } = await sb.rpc('claim_notification_delivery', {
-        p_user_id: userId, p_notification_key: c.key, p_notification_type: c.type,
+        p_user_id: userId, p_notification_key: deliveryKey, p_notification_type: c.type,
         p_source_id: c.sourceId, p_scheduled_for: c.scheduled.toISOString(),
       });
       if (claimError) throw new Error(`claim_notification_delivery: ${claimError.message}`);
@@ -303,20 +315,20 @@ Deno.serve(async (req) => {
       try {
         const attemptedAt = new Date();
         await sendToUser(sb, userId, {
-          title: c.title, body: c.body, url: './', tag: c.key,
+          title: c.title, body: c.body, url: './', tag: deliveryKey,
         });
         const acceptedAt = new Date();
         const delaySeconds = Math.max(0, Math.round((acceptedAt.getTime() - c.scheduled.getTime()) / 1000));
         maxDelaySeconds = Math.max(maxDelaySeconds, delaySeconds);
         if (delaySeconds > 90) lateSent++;
-        console.info(JSON.stringify({ event: 'reminder_provider_accepted', notification_key: c.key,
+        console.info(JSON.stringify({ event: 'reminder_provider_accepted', notification_key: deliveryKey,
           scheduled_for: c.scheduled.toISOString(), quiet_adjusted_for: quietAdjusted.toISOString(),
           attempted_at: attemptedAt.toISOString(), provider_accepted_at: acceptedAt.toISOString(),
           seconds_after_scheduled: delaySeconds,
           seconds_after_quiet_adjusted: Math.max(0, Math.round((acceptedAt.getTime() - quietAdjusted.getTime()) / 1000)) }));
         const { error } = await sb.from('notification_deliveries').update({
           status: 'sent', sent_at: acceptedAt.toISOString(), last_error: null,
-        }).eq('user_id', userId).eq('notification_key', c.key).eq('status', 'processing');
+        }).eq('user_id', userId).eq('notification_key', deliveryKey).eq('status', 'processing');
         if (error) throw new Error(`delivery update: ${error.message}`);
         sent++;
       } catch (e) {
@@ -324,7 +336,7 @@ Deno.serve(async (req) => {
         console.error('Reminder delivery failed:', c.type, c.sourceId, userId, message);
         await sb.from('notification_deliveries').update({
           status: 'failed', last_error: message,
-        }).eq('user_id', userId).eq('notification_key', c.key).eq('status', 'processing');
+        }).eq('user_id', userId).eq('notification_key', deliveryKey).eq('status', 'processing');
         failed++;
       }
     }
