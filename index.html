@@ -353,6 +353,7 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
 </style>
 <link rel="stylesheet" href="ui-modern.css?v=18">
 <style>#eventLegacyReminder[hidden],#taskLegacyReminder[hidden]{display:none!important}@media(max-width:440px){#formPanel .row:has(#reminder){grid-template-columns:1fr}}</style>
+<link rel="stylesheet" href="vacation.css?v=22">
 </head>
 <body>
 <div class="wrap">
@@ -484,10 +485,12 @@ linear-gradient(165deg,#3b407d 0%,#6e5598 52%,#e395a6 100%);padding:20px 17px 25
  <button id="savePrefs" class="btn" type="button" style="margin-top:8px">Einstellungen speichern</button>
 </section>
 <p id="familyMessage" role="status" aria-live="polite"></p>
+<section id="familyVacation" class="familyPage panel" aria-label="Urlaub"></section>
 <nav id="familyNav" aria-label="Bereiche">
  <button type="button" data-page="home" class="active"><span class="navIcon">⌂</span><span>Start</span></button>
  <button type="button" data-page="calendar"><span class="navIcon">▦</span><span>Kalender</span></button>
  <button type="button" data-page="tasks"><span class="navIcon">☑</span><span>Aufgaben</span></button>
+ <button type="button" data-page="vacation"><span class="navIcon" aria-hidden="true">🌴</span><span>Urlaub</span></button>
  <button type="button" data-page="shopping"><span class="navIcon">🛒</span><span>Einkauf</span></button>
  <button type="button" data-page="more"><span class="navIcon">•••</span><span>Mehr</span></button>
 </nav>
@@ -710,7 +713,7 @@ var fields=['title','start','end','allDay','st','et','ms','rep','note','reminder
 function record(e){var x={family_id:familyId};fields.forEach(function(k){x[k]=e[k]});return x;}
 function msg(e){return e&&e.message?e.message:String(e||'Unbekannter Fehler');}
 function authMessage(t){$('authMessage').textContent=t;}
-function locked(t){store=null;state.events=[];status=t||'Bitte anmelden';$('authScreen').style.display='flex';$('logoutBtn').style.display='none';render();}
+function locked(t){store=null;state.events=[];status=t||'Bitte anmelden';$('authScreen').style.display='flex';$('logoutBtn').style.display='none';render();window.dispatchEvent(new Event('family-session-changed'));}
 async function refresh(){
   if(!sessionUser)return;
   var result=await sb.from('events').select('id,title,start,end,allDay,st,et,ms,rep,note,reminder_minutes,reminder2_minutes,legacy_due_notification,visibility,created_by').eq('family_id',familyId).order('start',{ascending:true}).limit(5000);
@@ -738,6 +741,7 @@ async function enter(){
   status='';userRole=m.data.role||'child';$('authScreen').style.display='none';$('logoutBtn').style.display='inline-block';
   if(familyPage==='home')homeRender();
   store={add:function(e){return write('add',null,e)},update:function(id,e){return write('update',id,e)},del:function(id){return write('delete',id,null)}};
+  window.dispatchEvent(new Event('family-session-changed'));
   if(channel)await sb.removeChannel(channel);
   channel=sb.channel('family-events-'+familyId).on('postgres_changes',{event:'*',schema:'public',table:'events',filter:'family_id=eq.'+familyId},function(){refresh()}).subscribe();
   if(poller)clearInterval(poller);poller=setInterval(function(){if(!document.hidden)refresh()},30000);
@@ -1117,7 +1121,7 @@ $('attachmentUpload').onclick=async function(){
 
 locked('Bitte anmelden');familySwitch('home');setup();
 </script>
-<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=21").catch(console.warn);</script>
+<script>if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./service-worker.js?v=22").catch(console.warn);</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  var add=document.getElementById('calendarQuickAdd');
@@ -1265,7 +1269,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <script src="push.js?v=21"></script>
 <script src="ui-modern.js?v=18"></script>
+<script src="vacation-core.js?v=22"></script>
+<script src="vacation.js?v=22"></script>
 </body>
 </html>
-
-
