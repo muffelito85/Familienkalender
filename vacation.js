@@ -37,7 +37,7 @@
  <p class="empty">Jedes angegebene Datum zählt als ½ Tag, sofern es ein Arbeitstag und kein Feiertag ist. Ein einzelner halber Tag: Start- und Enddatum gleich setzen.</p>
  <label>Titel (optional)<input id="vacationTitle" maxlength="120" placeholder="Zum Beispiel: Sommerurlaub"></label><label>Notiz (optional, für die Familie sichtbar)<textarea id="vacationNote" maxlength="2000" rows="3"></textarea></label>
  <p id="vacationPreview" class="vacationPreview" aria-live="polite"></p><div class="vacationButtons"><button class="btn" id="vacationSave" type="submit">Urlaub speichern</button><button class="btn sec" id="vacationEntryCancel" type="button">Abbrechen</button></div>
- </form></details><div class="vacationListHeader"><h3>Urlaubsliste</h3><label><input id="vacationShowCancelled" type="checkbox"> Stornierte zeigen</label></div><div id="vacationList"></div>`;
+ </form></details><details id="vacationListSection" class="vacationEditor"><summary>Urlaubsliste <span id="vacationListCount"></span></summary><div class="vacationListContent"><div class="vacationListHeader"><label><input id="vacationShowCancelled" type="checkbox"> Stornierte zeigen</label></div><div id="vacationList"></div></div></details>`;
  for(let y=Math.max(2025,year-2);y<=Math.min(2100,year+10);y++)$('vacationYear').add(new Option(String(y),String(y)));
  $('vacationYear').value=String(year);
  Object.entries(C.STATES).forEach(([v,n])=>$('vacationState').add(new Option(n,v)));
@@ -79,6 +79,7 @@
   }
   const list=$('vacationList');list.replaceChildren();
   const visible=entries.filter(e=>e.start_date<=year+'-12-31'&&e.end_date>=year+'-01-01'&&(e.status!=='cancelled'||$('vacationShowCancelled').checked));
+  $('vacationListCount').textContent='('+visible.length+')';
   for(const e of visible.sort((a,b)=>a.start_date.localeCompare(b.start_date)||a.user_id.localeCompare(b.user_id))){
    const row=document.createElement('article');row.className='vacationListItem';row.style.setProperty('--vacation-person',color(e.user_id));
    row.innerHTML=`<div><strong>${esc(name(e.user_id))} · ${esc(e.title||'Urlaub')}</strong><p>${date(e.start_date)} – ${date(e.end_date)} <span class="vacationStatus">${labels[e.status]}</span></p></div>`;
